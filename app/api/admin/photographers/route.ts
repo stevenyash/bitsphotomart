@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
-import { PhotographerStatus } from "../../../../generated/prisma/client";
+import { PhotographerStatus } from "@prisma/client";
 
 // GET - Get pending photographer applications
 export async function GET(request: Request) {

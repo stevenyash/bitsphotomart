@@ -1,5 +1,6 @@
-import { Metadata } from 'next';
 'use client';
+
+import { Metadata } from 'next';
 import { Link2, Camera, Clapperboard, Plane, BarChart3, Building2, Hotel, Construction, Tv, Landmark, GraduationCap } from 'lucide-react';
 
 export const metadata: Metadata = {
