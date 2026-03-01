@@ -1,0 +1,1348 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+  // Use driver adapter for Prisma 7
+  driverAdapters = true
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String?
+  phone         String?
+  avatar        String?
+  role          Role      @default(USER)
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  photographer  Photographer?
+  orders        Order[]
+  reviews       Review[]
+  serviceReviews ServiceReview[]  // Service reviews given by user
+  cart          CartItem[]
+  downloads     Download[]
+  addresses     Address[]
+  notifications Notification[]
+  videoCart     VideoCartItem[]
+  videoDownloads VideoDownload[]
+  videoReviews  VideoReview[]
+  subscriptions UserSubscription[]
+  bpmOffers     BpmPurchaseOffer[]
+  editingRequests PhotoEditingRequest[]
+  servicePayments ServicePayment[]
+  corporateAccounts CorporateAccount[]
+  corporateTeamMemberships CorporateTeamMember[]
+  passwordResets PasswordReset[]
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [email], references: [email], onDelete: Cascade)
+  
+  @@index([email])
+}
+
+enum Role {
+  USER
+  PHOTOGRAPHER
+  ADMIN
+  CORPORATE
+  MANAGER
+  FINANCE_MANAGER
+}
+
+// ============================================
+// CORPORATE ACCOUNTS (B2B)
+// ============================================
+
+model CorporateAccount {
+  id              String    @id @default(cuid())
+  companyName     String
+  industry        String
+  contactPerson   String
+  jobTitle        String
+  phone           String?
+  address         String?   @db.Text
+  
+  // Subscription
+  subscriptionTier CorporateTier @default(STANDARD)
+  status          CorporateStatus @default(PENDING)
+  
+  // Billing
+  billingEmail    String?
+  vatNumber       String?
+  
+  // Account Manager
+  accountManagerId String?
+  
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  approvedAt      DateTime?
+  
+  // Relations
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  teamMembers     CorporateTeamMember[]
+  orders          Order[]
+  licenses        CorporateLicense[]
+}
+
+enum CorporateTier {
+  STANDARD
+  PREMIUM
+  ENTERPRISE
+}
+
+enum CorporateStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  CANCELLED
+}
+
+model CorporateTeamMember {
+  id              String    @id @default(cuid())
+  role            CorporateMemberRole @default(MEMBER)
+  joinedAt        DateTime  @default(now())
+  
+  // Relations
+  corporateAccountId String
+  corporateAccount CorporateAccount @relation(fields: [corporateAccountId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  
+  @@unique([corporateAccountId, userId])
+}
+
+enum CorporateMemberRole {
+  ADMIN
+  MANAGER
+  MEMBER
+  VIEWER
+}
+
+model CorporateLicense {
+  id              String    @id @default(cuid())
+  licenseType     String
+  scope           String?   // Internal use, Commercial, etc.
+  seats           Int       @default(1)
+  expiresAt       DateTime?
+  
+  // Content licensed
+  photoId         String?
+  videoId         String?
+  
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  
+  // Relations
+  corporateAccountId String
+  corporateAccount CorporateAccount @relation(fields: [corporateAccountId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// PHOTOGRAPHER PROFILE
+// ============================================
+
+model Photographer {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Profile
+  bio           String?   @db.Text
+  portfolio     String?
+  location      String?
+  skills        String?
+  
+  // Status
+  status        PhotographerStatus @default(PENDING)
+  rating        Float     @default(0)
+  totalSales    Int       @default(0)
+  totalEarnings Decimal   @default(0) @db.Decimal(12, 2)
+  
+  // Verification
+  idNumber      String?
+  idVerified   Boolean   @default(false)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  photos        Photo[]
+  applications  JobApplication[]
+  payouts       Payout[]
+  reviews       Review[]  @relation("PhotographerReviews")
+  serviceReviews ServiceReview[]  @relation("PhotographerServiceReviews")
+  videos        Video[]
+  videoReviews  VideoReview[]  @relation("PhotographerVideoReviews")
+  invitations   JobInvitation[]
+}
+
+enum PhotographerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+// ============================================
+// PHOTOS & STOCK IMAGES
+// ============================================
+
+model Photo {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?   @db.Text
+  category      String
+  tags          String?
+
+  // Files (URLs or paths)
+  originalUrl   String
+  thumbnailUrl  String
+  watermarkUrl  String?
+  
+  // Dimensions
+  width         Int?
+  height        Int?
+  
+  // Pricing
+  price         Decimal   @db.Decimal(10, 2)
+  licenseType   LicenseType @default(STANDARD)
+  
+  // Status
+  status        PhotoStatus @default(PENDING)
+  isFeatured    Boolean   @default(false)
+  isApproved    Boolean   @default(false)
+  viewCount     Int       @default(0)
+  downloadCount Int       @default(0)
+  
+  // Expiration
+  expiresAt     DateTime?
+  
+  // Exclusive license tracking
+  exclusiveSold Boolean   @default(false)
+  exclusiveTo   String?   // User ID who purchased exclusive rights
+  
+  // Photographer
+  photographerId String
+  photographer   Photographer @relation(fields: [photographerId], references: [id])
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  orderItems    OrderItem[]
+  reviews       Review[]
+  downloads     Download[]
+  cartItems     CartItem[]
+}
+
+enum PhotoStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  DELETED
+  SOLD  // Exclusive license was sold - removed from public display
+}
+
+enum LicenseType {
+  STANDARD
+  EXTENDED
+  EDITORIAL
+  ROYALTY_FREE
+  EXCLUSIVE  // Buyout - when purchased, photo is removed from display
+}
+
+// ============================================
+// VIDEOS & STOCK FOOTAGE
+// ============================================
+
+model Video {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?   @db.Text
+  category      String
+  tags          String?
+
+  // Files (URLs or paths)
+  originalUrl   String
+  previewUrl    String    // Short preview for streaming
+  thumbnailUrl  String
+  watermarkUrl  String?
+  
+  // Video details
+  duration      Int       // Duration in seconds
+  resolution    String?   // e.g., "1920x1080", "4K"
+  format        String?   // e.g., "MP4", "MOV"
+  fileSize      Int?      // Size in bytes
+  
+  // Dimensions
+  width         Int?
+  height        Int?
+  
+  // Pricing
+  price         Decimal   @db.Decimal(10, 2)
+  licenseType   LicenseType @default(ROYALTY_FREE)
+  
+  // Quality tier
+  quality       VideoQuality @default(HD)
+  
+  // Status
+  status        PhotoStatus @default(PENDING)
+  isFeatured    Boolean   @default(false)
+  isApproved    Boolean   @default(false)
+  viewCount     Int       @default(0)
+  downloadCount Int       @default(0)
+  
+  // Expiration
+  expiresAt     DateTime?
+  
+  // Photographer
+  photographerId String
+  photographer   Photographer @relation(fields: [photographerId], references: [id])
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  orderItems    VideoOrderItem[]
+  reviews       VideoReview[]
+  downloads     VideoDownload[]
+  cartItems     VideoCartItem[]
+}
+
+enum VideoQuality {
+  SD
+  HD
+  FULL_HD
+  UHD_4K
+  UHD_8K
+}
+
+model VideoOrderItem {
+  id            String    @id @default(cuid())
+  videoId       String
+  video         Video     @relation(fields: [videoId], references: [id])
+  
+  price         Decimal   @db.Decimal(10, 2)
+  licenseType   LicenseType @default(ROYALTY_FREE)
+  
+  // Download
+  downloadKey   String?
+  downloaded    Boolean   @default(false)
+  downloadedAt  DateTime?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+}
+
+model VideoCartItem {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId       String
+  video         Video     @relation(fields: [videoId], references: [id])
+  
+  licenseType   LicenseType @default(ROYALTY_FREE)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  @@unique([userId, videoId])
+}
+
+model VideoDownload {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  videoId       String
+  video         Video     @relation(fields: [videoId], references: [id])
+  
+  orderItemId   String?
+  
+  downloadKey   String    @unique
+  ipAddress     String?
+  
+  downloadedAt  DateTime  @default(now())
+}
+
+model VideoReview {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  videoId       String
+  video         Video     @relation(fields: [videoId], references: [id])
+  
+  // For photographer reviews
+  photographerId String?
+  photographer   Photographer? @relation("PhotographerVideoReviews", fields: [photographerId], references: [id])
+  
+  rating        Int
+  comment       String?   @db.Text
+  
+  createdAt     DateTime  @default(now())
+  
+  @@unique([userId, videoId])
+}
+
+// ============================================
+// ORDERS & E-COMMERCE
+// ============================================
+
+model Order {
+  id            String    @id @default(cuid())
+  orderNumber   String    @unique
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+
+  // Amounts
+  subtotal      Decimal   @db.Decimal(12, 2)
+  discount      Decimal   @default(0) @db.Decimal(12, 2)  // Promo code discount
+  tax           Decimal   @default(0) @db.Decimal(12, 2)
+  total         Decimal   @db.Decimal(12, 2)
+  
+  // Promo Code
+  promoCodeId   String?                                   // Used promo code
+  promoCode     PromoCode? @relation(fields: [promoCodeId], references: [id])
+  
+  // Status
+  status        OrderStatus @default(PENDING)
+  
+  // Payment
+  paymentMethod   PaymentMethod?
+  paymentRef     String?
+  mpesaReceipt   String?
+  paidAt         DateTime?
+  
+  // Manual Payment Verification (for M-Pesa network failures)
+  paymentVerified        Boolean   @default(false)
+  verifiedBy             String?
+  verifiedAt             DateTime?
+  verificationNotes     String?   @db.Text
+  verificationStatus     VerificationStatus @default(PENDING)
+  
+  // Shipping
+  shippingAddress String?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  items         OrderItem[]
+  
+  // Corporate Account (for B2B orders)
+  corporateAccountId String?
+  corporateAccount CorporateAccount? @relation(fields: [corporateAccountId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  MPESA
+  STRIPE
+  PAYPAL
+  MANUAL
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  NEEDS_REVIEW
+}
+
+model OrderItem {
+  id            String    @id @default(cuid())
+  orderId       String
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  photoId       String
+  photo         Photo     @relation(fields: [photoId], references: [id])
+  
+  price         Decimal   @db.Decimal(10, 2)
+  licenseType   LicenseType @default(STANDARD)
+  
+  // Download
+  downloadKey   String?
+  downloaded    Boolean   @default(false)
+  downloadedAt  DateTime?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+}
+
+// ============================================
+// SHOPPING CART
+// ============================================
+
+model CartItem {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photoId       String
+  photo         Photo     @relation(fields: [photoId], references: [id])
+  
+  licenseType   LicenseType @default(STANDARD)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  @@unique([userId, photoId])
+}
+
+// ============================================
+// DOWNLOADS
+// ============================================
+
+model Download {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  photoId       String
+  photo         Photo     @relation(fields: [photoId], references: [id])
+  
+  orderItemId   String?
+  orderId       String?
+  
+  downloadKey   String    @unique
+  ipAddress     String?
+  
+  downloadedAt  DateTime  @default(now())
+}
+
+// ============================================
+// REVIEWS & RATINGS
+// ============================================
+
+// Photo reviews
+model Review {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  photoId       String
+  photo         Photo     @relation(fields: [photoId], references: [id])
+  
+  // For photographer reviews
+  photographerId String?
+  photographer   Photographer? @relation("PhotographerReviews", fields: [photographerId], references: [id])
+  
+  rating        Int
+  comment       String?   @db.Text
+  
+  createdAt     DateTime  @default(now())
+  
+  @@unique([userId, photoId])
+}
+
+// Service Reviews (for completed service bookings)
+model ServiceReview {
+  id              String    @id @default(cuid())
+  
+  // User giving the review
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  
+  // Service being reviewed
+  serviceRequestId String
+  jobApplication  JobApplication @relation(fields: [serviceRequestId], references: [id])
+  
+  // Photographer being reviewed
+  photographerId   String
+  photographer    Photographer @relation("PhotographerServiceReviews", fields: [photographerId], references: [id])
+  
+  // Rating details
+  rating          Int       // 1-5 stars
+  
+  // Specific ratings
+  ratingQuality   Int?      // Quality of work (1-5)
+  ratingCommunication Int?  // Communication (1-5)
+  ratingProfessionalism Int? // Professionalism (1-5)
+  ratingValue     Int?      // Value for money (1-5)
+  ratingTimeliness Int?      // On-time delivery (1-5)
+  
+  // Review content
+  title           String?
+  comment         String?   @db.Text
+  
+  // Photos shared by client (optional)
+  clientPhotos    String?   // URLs of photos client shared
+  
+  // Response from photographer
+  response        String?   @db.Text
+  respondedAt     DateTime?
+  
+  // Status
+  isPublic        Boolean   @default(true)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([userId, serviceRequestId])
+  @@index([photographerId])
+  @@index([serviceRequestId])
+}
+
+// ============================================
+// JOB APPLICATIONS (Service Requests)
+// ============================================
+
+model JobApplication {
+  id            String    @id @default(cuid())
+  
+  // Client info
+  clientName    String
+  clientEmail   String
+  clientPhone   String
+  clientAddress String?
+  
+  // Job details
+  jobType       JobType
+  description   String    @db.Text
+  location      String
+  eventDate     DateTime?
+  budget        Decimal?  @db.Decimal(12, 2)
+  
+  // Quote & Payment fields (for deposit/final payment flow)
+  agreedBudget     Decimal?  @db.Decimal(12, 2)  // Final agreed price
+  depositPercent   Int?      @default(50)        // Deposit percentage (default 50%)
+  depositAmount    Decimal?  @db.Decimal(12, 2)  // Calculated deposit amount
+  depositPaid      Boolean   @default(false)      // Whether deposit is paid
+  depositPaidAt    DateTime?                     // When deposit was paid
+  depositMethod    String?                        // Payment method used
+  depositRef      String?                        // Payment reference
+  finalPaymentAmount Decimal?  @db.Decimal(12, 2)  // Remaining balance
+  finalPaymentPaid   Boolean   @default(false)    // Whether final payment is paid
+  finalPaymentPaidAt DateTime?                   // When final payment was paid
+  finalPaymentMethod String?                     // Payment method used
+  finalPaymentRef   String?                      // Payment reference
+  
+  // Platform fee tracking
+  platformFee        Decimal?  @db.Decimal(12, 2)  // Platform fee amount
+  photographerEarnings Decimal? @db.Decimal(12, 2) // Photographer's net earnings
+  
+  // Documentary-specific fields
+  storyDetails   String?   @db.Text      // Story development details
+  animationStyle AnimationStyle?         // Mr Smart style animation
+  artworkRequired Boolean @default(false) // Whether animation/artwork needed
+  artworkDetails String?   @db.Text      // Specific artwork requirements
+  clientMediaUrl String?                 // URL for client-provided media clips
+  duration       Int?                    // Documentary duration in minutes
+  voiceover      Boolean @default(false)  // Whether voiceover is needed
+  musicTrack     Boolean @default(false)  // Whether background music needed
+  subtitles      Boolean @default(false)  // Whether subtitles needed
+  deliveryFormat DeliveryFormat?         // Final delivery format
+  
+  // Videographer coverage fields
+  videographerCoverage Boolean @default(false) // Whether client needs videographer coverage
+  coverageType        String?                 // Type of coverage (event, interview, etc.)
+  coverageLocation    String?                 // Where coverage should happen
+  coverageDate        DateTime?              // When coverage should happen
+  coverageDuration     Int?                    // Coverage duration in hours
+  
+  // Status
+  status        JobStatus @default(PENDING)
+  
+  // Photographer (if assigned)
+  photographerId String?
+  photographer   Photographer? @relation(fields: [photographerId], references: [id])
+  
+  // Admin notes
+  adminNotes    String?   @db.Text
+  
+  // Invitations
+  invitations   JobInvitation[]
+  
+  // Service Reviews (for completed service bookings)
+  serviceReviews ServiceReview[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// ============================================
+// JOB INVITATIONS - Track photographer invitations
+// ============================================
+
+model JobInvitation {
+  id            String    @id @default(cuid())
+  
+  // Job being invited for
+  jobId         String
+  jobApplication JobApplication @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  // Photographer being invited
+  photographerId String
+  photographer   Photographer @relation(fields: [photographerId], references: [id])
+  
+  // Invitation details
+  status        InvitationStatus @default(PENDING)
+  adminMessage  String?   @db.Text  // Message from admin about why they were selected
+  photographerResponse String? @db.Text // Optional message from photographer
+  
+  // Timestamps
+  invitedAt     DateTime  @default(now())
+  respondedAt   DateTime?
+  
+  @@unique([jobId, photographerId]) // One invitation per job per photographer
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum JobType {
+  PHOTOGRAPHY
+  VIDEOGRAPHY
+  DRONE
+  DOCUMENTARY
+  EVENT_COVERAGE
+  PRODUCT_SHOOT
+  CUSTOM
+}
+
+enum AnimationStyle {
+  NONE
+  HAND_DRAWN
+  MOTION_GRAPHICS
+  WHITEBOARD
+  INFOGRAPHIC
+  STOP_MOTION
+  ANIMATION_3D
+  MR_SMART_STYLE
+}
+
+enum DeliveryFormat {
+  MP4
+  MOV
+  AVI
+  MKV
+  DVD
+  BLU_RAY
+  RAW
+}
+
+enum JobStatus {
+  PENDING
+  REVIEWING
+  INVITATION_SENT
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REJECTED
+}
+
+// ============================================
+// PAYOUTS TO PHOTOGRAPHERS
+// ============================================
+
+model Payout {
+  id              String    @id @default(cuid())
+  photographerId String
+  photographer    Photographer @relation(fields: [photographerId], references: [id])
+  
+  amount          Decimal   @db.Decimal(12, 2)
+  commission      Decimal   @default(0) @db.Decimal(12, 2)
+  netAmount       Decimal   @db.Decimal(12, 2)
+  
+  method          PayoutMethod
+  reference       String?
+  
+  status          PayoutStatus @default(PENDING)
+  
+  notes          String?    @db.Text
+  
+  processedAt     DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+enum PayoutMethod {
+  MPESA
+  BANK
+  PAYPAL
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// ============================================
+// ADDRESSES
+// ============================================
+
+model Address {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type          AddressType @default(SHIPPING)
+  name          String
+  phone         String
+  email         String?
+  
+  // Address fields
+  street        String?
+  city          String
+  county        String?
+  postalCode    String?
+  country       String    @default("Kenya")
+  
+  isDefault     Boolean   @default(false)
+  
+  createdAt     DateTime  @default(now())
+}
+
+enum AddressType {
+  SHIPPING
+  BILLING
+}
+
+// ============================================
+// BLOG / CONTENT
+// ============================================
+
+model BlogPost {
+  id            String    @id @default(cuid())
+  title         String
+  slug          String    @unique
+  content       String    @db.Text
+  excerpt       String?   @db.Text
+  featuredImage String?
+  
+  author        String?
+  status        BlogStatus @default(DRAFT)
+  
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ============================================
+// CATEGORIES
+// ============================================
+
+model Category {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  slug          String    @unique
+  description   String?
+  image         String?
+  parentId      String?
+  parent        Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children      Category[] @relation("CategoryHierarchy")
+  
+  createdAt     DateTime  @default(now())
+}
+
+// ============================================
+// SETTINGS
+// ============================================
+
+model Setting {
+  id            String    @id @default(cuid())
+  key           String    @unique
+  value         String    @db.Text
+  description   String?
+  
+  updatedAt     DateTime  @updatedAt
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title         String
+  message       String    @db.Text
+  type          NotificationType @default(INFO)
+  link          String?
+  
+  isRead        Boolean   @default(false)
+  readAt        DateTime?
+  
+  createdAt     DateTime  @default(now())
+  
+  @@index([userId, isRead])
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  ORDER
+  PAYOUT
+  PHOTO
+  REVIEW
+  MESSAGE
+  PAYMENT_VERIFICATION_REQUEST
+}
+
+// ============================================
+// PROMO CODES / DISCOUNTS
+// ============================================
+
+model PromoCode {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  description   String?
+  
+  // Discount type
+  discountType  DiscountType
+  discountValue Decimal   @db.Decimal(10, 2) // Percentage or fixed amount
+  
+  // Usage limits
+  maxUses       Int?      // Maximum total uses
+  usedCount     Int       @default(0)
+  
+  // Per-user limits
+  maxUsesPerUser Int?     // Max uses per user
+  
+  // Validity
+  minOrderAmount Decimal? @db.Decimal(12, 2) // Minimum order amount to qualify
+  validFrom     DateTime?
+  validUntil    DateTime?
+  
+  // Scope
+  appliesTo      PromoScope @default(ALL) // ALL, PHOTOS, VIDEOS, SUBSCRIPTIONS
+  
+  // Status
+  isActive      Boolean   @default(true)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  orders        Order[]   // Orders that used this promo code
+  
+  @@index([code])
+  @@index([isActive])
+}
+
+enum DiscountType {
+  PERCENTAGE  // e.g., 10% off
+  FIXED       // e.g., KES 500 off
+}
+
+enum PromoScope {
+  ALL
+  PHOTOS
+  VIDEOS
+  SUBSCRIPTIONS
+  SERVICES
+}
+
+// ============================================
+// SUBSCRIPTION PLANS
+// ============================================
+
+model SubscriptionPlan {
+  id            String    @id @default(cuid())
+  name          String    // Basic, Premium, Pro
+  slug          String    @unique
+  description   String?
+  
+  // Pricing
+  monthlyPrice  Decimal?  @db.Decimal(12, 2)
+  annualPrice   Decimal?  @db.Decimal(12, 2)
+  
+  // Features
+  features      String?   @db.Text // JSON or comma-separated features
+  
+  // Limits
+  maxDownloads  Int?      // Downloads per month
+  maxPhotos     Int?      // Max photos in cart
+  
+  // Status
+  isActive      Boolean   @default(true)
+  isPopular     Boolean   @default(false)
+  
+  // Order
+  displayOrder  Int       @default(0)
+  
+  // Relations
+  subscriptions UserSubscription[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model UserSubscription {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  planId        String
+  plan          SubscriptionPlan @relation(fields: [planId], references: [id])
+  
+  // Subscription details
+  status        SubscriptionStatus @default(ACTIVE)
+  
+  // Billing
+  startDate     DateTime
+  endDate       DateTime?
+  nextBillingDate DateTime?
+  
+  // Stripe subscription ID
+  stripeSubscriptionId String? @unique
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+  PAUSED
+}
+
+// ============================================
+// BPM PHOTO PURCHASE OFFERS
+// ============================================
+
+model BpmPurchaseOffer {
+  id            String    @id @default(cuid())
+  
+  // Photo details
+  title         String
+  description   String?   @db.Text
+  imageUrl      String
+  thumbnailUrl  String?
+  
+  // Photographer (who submitted)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  // Price info
+  askingPrice   Decimal   @db.Decimal(12, 2)
+  offeredPrice  Decimal?  @db.Decimal(12, 2)
+  
+  // Status
+  status        BpmOfferStatus @default(PENDING)
+  
+  // Expiration
+  expiresAt     DateTime
+  
+  // Admin notes
+  adminNotes    String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+enum BpmOfferStatus {
+  PENDING     // Under review
+  UNDER_REVIEW // Being reviewed by admin
+  OFFERED     // BPM made an offer
+  ACCEPTED    // Photographer accepted offer
+  REJECTED    // Rejected by BPM
+  EXPIRED     // Expired (10 days)
+  PURCHASED   // Successfully purchased
+}
+
+// ============================================
+// PHOTO EDITING SERVICE
+// ============================================
+
+model PhotoEditingRequest {
+  id            String    @id @default(cuid())
+  
+  // User details
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  // Photo details
+  originalUrl   String
+  title         String
+  description   String?   @db.Text
+  
+  // Editing options
+  editingType   EditingType
+  serviceType   String      // Comma-separated list of services
+  instructions  String?   @db.Text
+  
+  // Pricing
+  basePrice     Decimal   @db.Decimal(12, 2)
+  totalPrice    Decimal   @db.Decimal(12, 2)
+  
+  // Status
+  status        EditingStatus @default(PENDING)
+  
+  // Result
+  editedUrl     String?
+  deliveredAt   DateTime?
+  
+  // Admin notes
+  adminNotes    String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+enum EditingType {
+  BASIC       // Basic adjustments (brightness, contrast)
+  ADVANCED    // Advanced editing (color grading, retouching)
+  CUSTOM      // Custom/special effects
+}
+
+enum EditingStatus {
+  PENDING
+  IN_PROGRESS
+  REVIEWING
+  COMPLETED
+  DELIVERED
+  REVISION_REQUESTED
+  CANCELLED
+}
+
+// ============================================
+// UNIVERSAL SERVICE PAYMENT
+// ============================================
+
+model ServicePayment {
+  id              String    @id @default(cuid())
+  
+  // User details
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  
+  // Payment details
+  amount          Decimal   @db.Decimal(12, 2)
+  description     String
+  serviceType     String    // photo-editing, drone-service, documentary, etc.
+  paymentMethod   String    // MPESA, STRIPE, PAYPAL
+  
+  // Status
+  status          String    @default("PENDING") // PENDING, PROCESSING, PAID, FAILED, CANCELLED
+  
+  // Metadata (JSON string for additional data like order details)
+  metadata         String?   @db.Text
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+// ============================================
+// MESSAGING SYSTEM
+// ============================================
+
+model Conversation {
+  id            String    @id @default(cuid())
+  
+  // Participants
+  participant1Id String
+  participant1Type ParticipantType // USER, PHOTOGRAPHER, ADMIN
+  participant2Id String
+  participant2Type ParticipantType
+  
+  // For group conversations (future use)
+  isGroup       Boolean   @default(false)
+  groupName     String?
+  
+  // Context (optional - linked to a job/application)
+  contextType   String?   // 'JOB', 'ORDER', 'SERVICE_REQUEST'
+  contextId     String?
+  
+  // Status
+  status        ConversationStatus @default(ACTIVE)
+  
+  // Last message preview
+  lastMessage   String?   @db.Text
+  lastMessageAt DateTime?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  messages      Message[]
+  
+  @@unique([participant1Id, participant1Type, participant2Id, participant2Type])
+  @@index([participant1Id, participant1Type])
+  @@index([participant2Id, participant2Type])
+  @@index([contextType, contextId])
+}
+
+model Message {
+  id            String    @id @default(cuid())
+  
+  // Conversation
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  // Sender
+  senderId      String
+  senderType    ParticipantType
+  senderName    String?
+  
+  // Content
+  content       String    @db.Text
+  messageType   MessageType @default(TEXT)
+  attachmentUrl String?
+  attachmentName String?
+  
+  // Status
+  isRead        Boolean   @default(false)
+  readAt        DateTime?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  
+  @@index([conversationId])
+  @@index([senderId, senderType])
+  @@index([conversationId, isRead])
+}
+
+enum ParticipantType {
+  USER
+  PHOTOGRAPHER
+  ADMIN
+}
+
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  BLOCKED
+}
+
+// ============================================
+// BPM SERVICES (Service Offerings)
+// ============================================
+
+model BpmService {
+  id            String    @id @default(cuid())
+  
+  // Service identification
+  name          String
+  slug          String    @unique
+  description   String?   @db.Text
+  
+  // Display properties
+  icon          String?   // Emoji or icon class
+  color         String?   // Background color class
+  
+  // Navigation
+  link          String?   // Link to the service page
+  cta           String?   // Call to action button text
+  
+  // Status
+  isActive      Boolean   @default(true)
+  displayOrder  Int       @default(0)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  options       ServiceOption[]
+  
+  @@index([isActive])
+  @@index([displayOrder])
+}
+
+// Service Options - Dynamic options for each BPM service
+model ServiceOption {
+  id            String    @id @default(cuid())
+  
+  // Option identification
+  value         String    // The actual value (e.g., 'MP4', 'NONE')
+  label         String    // Display label (e.g., 'MP4', 'No Animation')
+  description   String?   // Optional description
+  
+  // Price for this option (in KES)
+  price         Float?    // Optional price (e.g., 1500, 5000)
+  
+  // Category - defines what type of option this is
+  // Categories: animation_styles, delivery_formats, durations, coverage_types, coverage_durations, photo_editing_levels, add_ons, drone_types, service_types, locations
+  category      String
+  
+  // Display order within category
+  displayOrder  Int       @default(0)
+  
+  // Status
+  isActive      Boolean   @default(true)
+  
+  // Relation to BpmService
+  bpmServiceId  String?
+  bpmService    BpmService? @relation(fields: [bpmServiceId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Unique constraint for upsert
+  @@unique([value, category, bpmServiceId])
+  @@index([category])
+  @@index([bpmServiceId])
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM // Auto-generated system messages
+}
