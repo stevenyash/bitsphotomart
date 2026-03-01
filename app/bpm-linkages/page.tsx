@@ -1,5 +1,3 @@
-'use client';
-
 import { Metadata } from 'next';
 import { Link2, Camera, Clapperboard, Plane, BarChart3, Building2, Hotel, Construction, Tv, Landmark, GraduationCap } from 'lucide-react';
 
@@ -10,9 +8,9 @@ export const metadata: Metadata = {
 
 export default function BpmLinkagesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
       {/* Hero */}
-      <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-20">
+      <div className="bg-linear-to-r from-blue-700 to-blue-900 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 flex items-center justify-center gap-3">
             <Link2 className="w-10 h-10" /> BPM Linkages
