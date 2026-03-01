@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     // Create notifications for admins
     if (admins.length > 0) {
       await prisma.notification.createMany({
-        data: admins.map((admin) => ({
+        data: admins.map((admin: { id: any; }) => ({
           userId: admin.id,
           type: "INFO",
           title: "Payment Verification Requested",

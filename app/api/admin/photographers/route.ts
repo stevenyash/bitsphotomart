@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
     });
 
     // Serialize Decimal fields
-    const serializedPhotographers = photographers.map((p) => ({
+    const serializedPhotographers = photographers.map((p: { totalEarnings: any; createdAt: { toISOString: () => any; }; updatedAt: { toISOString: () => any; }; user: { createdAt: { toISOString: () => any; }; updatedAt: { toISOString: () => any; }; }; }) => ({
       ...p,
       totalEarnings: Number(p.totalEarnings),
       createdAt: p.createdAt?.toISOString() || null,

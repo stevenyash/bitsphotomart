@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
               order.orderNumber,
               order.user.email || "",
               order.user.name || "Customer",
-              order.items.map((item) => ({
+              order.items.map((item: { photo: { title: any; }; price: any; licenseType: any; }) => ({
                 title: item.photo.title,
                 price: Number(item.price),
                 licenseType: item.licenseType,
