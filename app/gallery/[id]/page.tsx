@@ -1,5 +1,6 @@
 "use client";
 
+import { theme } from "@/lib/admin-theme";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -90,7 +91,7 @@ export default function PhotoDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
       </div>
     );
@@ -112,7 +113,7 @@ export default function PhotoDetailPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">

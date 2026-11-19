@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { mediaManager } from "@/lib/media-manager";
+import { hasPermission } from "@/lib/rbac";
 
 // GET - Get photos for approval queue
 export async function GET(request: Request) {
@@ -11,8 +13,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
+    // Permission check for viewing photos
+    const hasViewAccess = await hasPermission('content.photos.view');
+    if (!hasViewAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -22,7 +25,8 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    const where: any = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: Record<string, unknown> = {};
 
     if (status && status !== "ALL") {
       where.status = status;
@@ -108,13 +112,14 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
+    // Permission check for approving/rejecting photos
+    const hasApproveAccess = await hasPermission('content.photos.approve');
+    if (!hasApproveAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await request.json();
-    const { photoId, action, rejectionReason } = body;
+    const { photoId, action } = body;
 
     if (!photoId || !action) {
       return NextResponse.json({ error: "photoId and action are required" }, { status: 400 });
@@ -124,9 +129,9 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
-    const updateData: any = {
+    const updateData = {
       status: action === "APPROVE" ? "APPROVED" : "REJECTED",
-    };
+    } as const;
 
     const photo = await prisma.photo.update({
       where: { id: photoId },
@@ -140,7 +145,7 @@ export async function PATCH(request: Request) {
   }
 }
 
-// DELETE - Remove photo
+// DELETE - Remove photo (and delete from S3)
 export async function DELETE(request: Request) {
   try {
     const session = await auth();
@@ -149,8 +154,9 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
+    // Permission check for deleting photos
+    const hasDeleteAccess = await hasPermission('content.photos.delete');
+    if (!hasDeleteAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -161,11 +167,46 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "photoId is required" }, { status: 400 });
     }
 
+    // Get the photo first to find the S3 URLs
+    const photo = await prisma.photo.findUnique({
+      where: { id: photoId },
+    });
+
+    if (!photo) {
+      return NextResponse.json({ error: "Photo not found" }, { status: 404 });
+    }
+
+    // Delete associated S3 files
+    const s3KeysToDelete: string[] = [];
+    
+    // Extract S3 key from URLs if they exist
+    const urls = [photo.originalUrl, photo.thumbnailUrl, photo.watermarkUrl].filter(Boolean);
+    
+    for (const url of urls) {
+      if (url) {
+        // Extract key from CloudFront or S3 URL
+        const key = url.replace(/^https?:\/\/[^\/]+\//, '');
+        if (key && key !== url) {
+          s3KeysToDelete.push(key);
+        }
+      }
+    }
+
+    // Delete files from S3
+    const deletePromises = s3KeysToDelete.map(key => 
+      mediaManager.delete(key).catch(err => 
+        console.error(`Failed to delete S3 key ${key}:`, err)
+      )
+    );
+    
+    await Promise.all(deletePromises);
+
+    // Delete from database
     await prisma.photo.delete({
       where: { id: photoId },
     });
 
-    return NextResponse.json({ message: "Photo deleted successfully" });
+    return NextResponse.json({ message: "Photo and associated S3 files deleted successfully" });
   } catch (error) {
     console.error("Error deleting photo:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

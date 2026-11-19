@@ -14,7 +14,7 @@ interface CartItem {
     id: string;
     title: string;
     imageUrl: string;
-    price: import("@prisma/client").Prisma.Decimal;
+    price: number;
     photographer: {
       user: {
         name: string | null;
@@ -22,6 +22,7 @@ interface CartItem {
     };
   };
 }
+
 
 interface CartItemListProps {
   items: CartItem[];

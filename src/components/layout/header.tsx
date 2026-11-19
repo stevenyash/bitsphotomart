@@ -119,7 +119,7 @@ export function Header() {
               <Button variant="ghost" size="sm" className="text-xs xl:text-sm">Login</Button>
             </Link>
             <Link href="/register">
-              <Button size="sm" className="text-xs xl:text-sm">Get Started</Button>
+              <Button size="sm" className="text-xs xl:text-sm">Register for Login</Button>
             </Link>
           </div>
         )}
@@ -197,7 +197,7 @@ export function Header() {
                   Login
                 </Link>
                 <Link href="/register" className="text-sm font-medium py-2">
-                  Get Started
+                  Register for Login
                 </Link>
               </>
             ) : (

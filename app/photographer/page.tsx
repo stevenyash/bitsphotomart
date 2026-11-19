@@ -111,12 +111,12 @@ export default async function PhotographerDashboardPage() {
   // Check if photographer profile exists
   if (!photographer && userRole === "PHOTOGRAPHER") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="bg-slate-800 p-8 rounded-xl border border-slate-700 text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Welcome, {session.user.name || session.user.email}!</h1>
-          <p className="text-slate-400 mb-6">You need to complete your photographer profile to access the dashboard.</p>
+      <div className="min-h-screen bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+        <div className="bg-card p-8 rounded-xl border border-border text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">Welcome, {session.user.name || session.user.email}!</h1>
+          <p className="text-muted-foreground mb-6">You need to complete your photographer profile to access the dashboard.</p>
           <Link href="/register/photographer">
-            <Button className="bg-amber-600 hover:bg-amber-700">Complete Profile</Button>
+            <Button className="bg-primary text-primary-foreground hover:opacity-90">Complete Profile</Button>
           </Link>
         </div>
       </div>
@@ -126,11 +126,11 @@ export default async function PhotographerDashboardPage() {
   const isPending = photographer?.status === "PENDING";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-      <div className="bg-slate-800 border-b border-slate-700">
+    <div className="min-h-screen bg-[var(--background)]">
+      <div className="bg-[var(--card)] border-b border-[var(--border)]">
         <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-white">Photographer Dashboard</h1>
-          <p className="text-slate-400">
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Photographer Dashboard</h1>
+          <p className="text-[var(--muted-foreground)]">
             Welcome back, {session.user.name || session.user.email}!
           </p>
         </div>
@@ -142,57 +142,56 @@ export default async function PhotographerDashboardPage() {
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-8">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div>
-              <span className="text-amber-400 font-medium">Your application is pending approval</span>
+              <span className="text-amber-600 dark:text-amber-400 font-medium">Your application is pending approval</span>
             </div>
           </div>
         )}
 
-        {/* Stats Cards for Photographers */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+          <div className="bg-[var(--card)] p-6 rounded-xl border border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-amber-500/20 rounded-lg">
-                <Image className="h-6 w-6 text-amber-400" />
+              <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                <Image className="h-6 w-6 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-400">Total Photos</p>
-                <p className="text-2xl font-bold text-white">{stats.totalPhotos}</p>
+                <p className="text-sm text-[var(--muted-foreground)]">Total Photos</p>
+                <p className="text-2xl font-bold text-[var(--foreground)]">{stats.totalPhotos}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+          <div className="bg-[var(--card)] p-6 rounded-xl border border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-500/20 rounded-lg">
-                <ShoppingCart className="h-6 w-6 text-green-400" />
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <ShoppingCart className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-400">Total Sales</p>
-                <p className="text-2xl font-bold text-white">{stats.totalSales}</p>
+                <p className="text-sm text-[var(--muted-foreground)]">Total Sales</p>
+                <p className="text-2xl font-bold text-[var(--foreground)]">{stats.totalSales}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+          <div className="bg-[var(--card)] p-6 rounded-xl border border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500/20 rounded-lg">
-                <DollarSign className="h-6 w-6 text-blue-400" />
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <DollarSign className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-400">Total Earnings</p>
-                <p className="text-2xl font-bold text-white">KES {stats.totalEarnings.toLocaleString()}</p>
+                <p className="text-sm text-[var(--muted-foreground)]">Total Earnings</p>
+                <p className="text-2xl font-bold text-[var(--foreground)]">KES {stats.totalEarnings.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+          <div className="bg-[var(--card)] p-6 rounded-xl border border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-500/20 rounded-lg">
-                <Star className="h-6 w-6 text-purple-400" />
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                <Star className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-400">Rating</p>
-                <p className="text-2xl font-bold text-white">{stats.rating.toFixed(1)}</p>
+                <p className="text-sm text-[var(--muted-foreground)]">Rating</p>
+                <p className="text-2xl font-bold text-[var(--foreground)]">{stats.rating.toFixed(1)}</p>
               </div>
             </div>
           </div>
@@ -201,35 +200,35 @@ export default async function PhotographerDashboardPage() {
         {/* Quick Actions for Photographers */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Link href="/photographer/upload">
-            <Button className="w-full h-24 flex flex-col items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700">
+            <Button className="w-full h-24 flex flex-col items-center justify-center gap-2 bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)]">
               <Upload className="h-8 w-8" />
               <span className="text-lg">Upload Photos</span>
             </Button>
           </Link>
 
           <Link href="/photographer/upload/video">
-            <Button className="w-full h-24 flex flex-col items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button className="w-full h-24 flex flex-col items-center justify-center gap-2 bg-secondary text-secondary-foreground hover:opacity-90">
               <Video className="h-8 w-8" />
               <span className="text-lg">Upload Video</span>
             </Button>
           </Link>
 
           <Link href="/photographer/photos">
-            <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center gap-2 border-slate-600 text-white hover:bg-slate-700">
+            <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center gap-2 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]">
               <Image className="h-8 w-8" />
               <span className="text-lg">My Photos</span>
             </Button>
           </Link>
 
           <Link href="/photographer/orders">
-            <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center gap-2 border-slate-600 text-white hover:bg-slate-700">
+            <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center gap-2 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]">
               <ShoppingCart className="h-8 w-8" />
               <span className="text-lg">Sales</span>
             </Button>
           </Link>
 
           <Link href="/photographer/analytics">
-            <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center gap-2 border-slate-600 text-white hover:bg-slate-700">
+            <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center gap-2 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]">
               <BarChart3 className="h-8 w-8" />
               <span className="text-lg">Analytics</span>
             </Button>
@@ -239,59 +238,59 @@ export default async function PhotographerDashboardPage() {
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Job Applications */}
-          <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <Briefcase className="h-5 w-5 text-amber-400" />
+          <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6">
+            <h2 className="text-xl font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+              <Briefcase className="h-5 w-5 text-amber-500" />
               Available Jobs
             </h2>
             <div className="space-y-3">
               {photographer?.applications && photographer.applications.length > 0 ? (
                 photographer.applications.map((job) => (
-                  <div key={job.id} className="p-4 bg-slate-700/50 rounded-lg">
-                    <p className="text-white font-medium">{job.jobType}</p>
-                    <p className="text-slate-400 text-sm">{job.clientName} - {job.location}</p>
+                  <div key={job.id} className="p-4 bg-[var(--muted)] rounded-lg">
+                    <p className="text-[var(--foreground)] font-medium">{job.jobType}</p>
+                    <p className="text-[var(--muted-foreground)] text-sm">{job.clientName} - {job.location}</p>
                     <span className={`inline-block mt-2 text-xs px-2 py-1 rounded ${
-                      job.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-400' :
-                      job.status === 'ASSIGNED' ? 'bg-blue-500/20 text-blue-400' :
-                      job.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' :
-                      'bg-slate-500/20 text-slate-400'
+                      job.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' :
+                      job.status === 'ASSIGNED' ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' :
+                      job.status === 'COMPLETED' ? 'bg-green-500/20 text-green-600 dark:text-green-400' :
+                      'bg-gray-500/20 text-gray-600 dark:text-gray-400'
                     }`}>
                       {job.status}
                     </span>
                   </div>
                 ))
               ) : (
-                <div className="p-4 bg-slate-700/50 rounded-lg">
-                  <p className="text-white font-medium">No jobs available yet</p>
-                  <p className="text-slate-400 text-sm">Check back later for job opportunities</p>
+                <div className="p-4 bg-[var(--muted)] rounded-lg">
+                  <p className="text-[var(--foreground)] font-medium">No jobs available yet</p>
+                  <p className="text-[var(--muted-foreground)] text-sm">Check back later for job opportunities</p>
                 </div>
               )}
             </div>
             <Link href="/photographer/jobs" className="mt-4 block">
-              <Button variant="outline" className="w-full border-slate-600 text-white hover:bg-slate-700">
+              <Button variant="outline" className="w-full border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]">
                 View All Jobs
               </Button>
             </Link>
           </div>
 
           {/* Payout Requests */}
-          <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-amber-400" />
+          <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6">
+            <h2 className="text-xl font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-amber-500" />
               Earnings & Payouts
             </h2>
             <div className="space-y-3">
-              <div className="flex justify-between items-center p-4 bg-slate-700/50 rounded-lg">
-                <span className="text-slate-300">Available Balance</span>
-                <span className="text-white font-bold">KES {stats.totalEarnings.toLocaleString()}</span>
+              <div className="flex justify-between items-center p-4 bg-[var(--muted)] rounded-lg">
+                <span className="text-[var(--muted-foreground)]">Available Balance</span>
+                <span className="text-[var(--foreground)] font-bold">KES {stats.totalEarnings.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between items-center p-4 bg-slate-700/50 rounded-lg">
-                <span className="text-slate-300">Pending</span>
-                <span className="text-white font-bold">KES {stats.pendingPayouts.toLocaleString()}</span>
+              <div className="flex justify-between items-center p-4 bg-[var(--muted)] rounded-lg">
+                <span className="text-[var(--muted-foreground)]">Pending</span>
+                <span className="text-[var(--foreground)] font-bold">KES {stats.pendingPayouts.toLocaleString()}</span>
               </div>
             </div>
             <Link href="/photographer/payout" className="mt-4 block">
-              <Button className="w-full bg-amber-600 hover:bg-amber-700">
+              <Button className="w-full bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)]">
                 Request Payout
               </Button>
             </Link>
@@ -301,7 +300,7 @@ export default async function PhotographerDashboardPage() {
         {/* Settings */}
         <div className="mt-8">
           <Link href="/photographer/settings">
-            <Button variant="outline" className="border-slate-600 text-white hover:bg-slate-700">
+            <Button variant="outline" className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]">
               <Settings className="h-4 w-4 mr-2" />
               Profile Settings
             </Button>

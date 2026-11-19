@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { theme } from "@/lib/admin-theme";
 import { Link2, Camera, Clapperboard, Plane, BarChart3, Building2, Hotel, Construction, Tv, Landmark, GraduationCap } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function BpmLinkagesPage() {
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Hero */}
       <div className="bg-linear-to-r from-blue-700 to-blue-900 text-white py-20">
         <div className="container mx-auto px-4 text-center">

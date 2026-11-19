@@ -2,19 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { BlogStatus } from '@/lib/generated/prisma';
+import { hasPermission } from '@/lib/rbac';
+
 
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Permission check for viewing blog posts
+    const hasAccess = await hasPermission('content.blog.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
 
-    const where = status && status !== 'ALL' ? { status } : {};
+    const where = status && status !== 'ALL' ? { status: status as BlogStatus } : {};
 
     const posts = await prisma.blogPost.findMany({
       where,
@@ -32,8 +41,14 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Permission check for creating blog posts
+    const hasAccess = await hasPermission('content.blog.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();

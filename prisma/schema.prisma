@@ -17,6 +17,7 @@ datasource db {
 // ============================================
 
 model User {
+  @@map("user")
   id            String    @id @default(cuid())
   email         String    @unique
   password      String
@@ -47,9 +48,20 @@ model User {
   corporateAccounts CorporateAccount[]
   corporateTeamMemberships CorporateTeamMember[]
   passwordResets PasswordReset[]
+  
+  // Admin relations
+  adminProfile   AdminProfile?
+  adminActivityLogs AdminActivityLog[]
+  
+  // Marketer relations
+  marketerProfile     MarketerProfile?
+  marketerInvitations MarketerInvitation[] @relation("InvitedByUser")
+  invitedByMarketer   MarketerInvitation? @relation("InvitedUser")
+  referredByMarketer MarketerReferral[] @relation("ReferredByMarketer")
 }
 
 model PasswordReset {
+  @@map("password_reset")
   id        String   @id @default(cuid())
   email     String
   token     String   @unique
@@ -65,9 +77,115 @@ enum Role {
   USER
   PHOTOGRAPHER
   ADMIN
+  SUPERADMIN
   CORPORATE
   MANAGER
   FINANCE_MANAGER
+  MARKETER
+}
+
+// ============================================
+// PERMISSIONS & ADMIN MANAGEMENT
+// ============================================
+
+model Permission {
+  @@map("permission")
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  category    String   // e.g., 'users', 'content', 'finance', 'settings'
+  createdAt   DateTime @default(now())
+
+  // Relations
+  adminRoles  AdminRolePermission[]
+  userPermissions UserPermission[]
+}
+
+model AdminRole {
+  @@map("admin_role")
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isDefault   Boolean  @default(false)
+  isSuperRole Boolean  @default(false) // SuperAdmin role has all permissions
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  permissions AdminRolePermission[]
+  admins      AdminProfile[]
+}
+
+model AdminRolePermission {
+  @@map("admin_role_permission")
+  id            String     @id @default(cuid())
+  adminRoleId   String
+  permissionId  String
+  grantedAt     DateTime   @default(now())
+
+  adminRole     AdminRole  @relation(fields: [adminRoleId], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([adminRoleId, permissionId])
+}
+
+model AdminProfile {
+  @@map("admin_profile")
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adminRoleId     String?
+  adminRole       AdminRole? @relation(fields: [adminRoleId], references: [id])
+  
+  // User-specific permissions (beyond role permissions)
+  permissions     UserPermission[]
+  
+  // Admin-specific fields
+  department      String?
+  title           String?
+  lastLoginAt     DateTime?
+  lastLoginIP     String?
+  failedLoginAttempts Int @default(0)
+  lockedUntil     DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// User-specific permissions (granted directly to user, beyond role)
+model UserPermission {
+  @@map("user_permission")
+  id            String        @id @default(cuid())
+  adminProfileId String
+  adminProfile  AdminProfile  @relation(fields: [adminProfileId], references: [id], onDelete: Cascade)
+  permissionId  String
+  permission    Permission   @relation(fields: [permissionId], references: [id])
+  
+  createdAt     DateTime     @default(now())
+  createdBy     String?      // User ID who granted this permission
+  
+  @@unique([adminProfileId, permissionId])
+}
+
+// System-wide activity log for admins
+model AdminActivityLog {
+  @@map("admin_activity_log")
+  id          String    @id @default(cuid())
+  adminId     String
+  admin       User      @relation(fields: [adminId], references: [id])
+  
+  action      String    // e.g., 'user.update', 'settings.change', 'role.assign'
+  entityType  String?   // e.g., 'User', 'Order', 'Setting'
+  entityId    String?
+  details     Json?     // Additional action details
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
 }
 
 // ============================================
@@ -75,6 +193,7 @@ enum Role {
 // ============================================
 
 model CorporateAccount {
+  @@map("corporate_account")
   id              String    @id @default(cuid())
   companyName     String
   industry        String
@@ -121,6 +240,7 @@ enum CorporateStatus {
 }
 
 model CorporateTeamMember {
+  @@map("corporate_team_member")
   id              String    @id @default(cuid())
   role            CorporateMemberRole @default(MEMBER)
   joinedAt        DateTime  @default(now())
@@ -142,6 +262,7 @@ enum CorporateMemberRole {
 }
 
 model CorporateLicense {
+  @@map("corporate_license")
   id              String    @id @default(cuid())
   licenseType     String
   scope           String?   // Internal use, Commercial, etc.
@@ -161,10 +282,116 @@ model CorporateLicense {
 }
 
 // ============================================
+// MARKETER MANAGEMENT
+// ============================================
+
+model MarketerProfile {
+  @@map("marketer_profile")
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  referralCode    String    @unique @default(cuid())
+  department      String?
+  title           String?
+  commissionRate  Decimal   @default(10) @db.Decimal(5, 2)
+  targetSales     Decimal?  @db.Decimal(12, 2)
+  
+  totalSales      Decimal   @default(0) @db.Decimal(12, 2)
+  totalCommission Decimal   @default(0) @db.Decimal(12, 2)
+  activeClients   Int       @default(0)
+  pendingCommission Decimal @default(0) @db.Decimal(12, 2)
+  
+  status          MarketerStatus @default(ACTIVE)
+  lastLoginAt     DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  referrals       MarketerReferral[]
+  invitation      MarketerInvitation?
+}
+
+enum MarketerStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+model MarketerInvitation {
+  @@map("marketer_invitation")
+  id              String    @id @default(cuid())
+  
+  email           String
+  token           String    @unique
+  invitedBy       String
+  invitedByUser   User      @relation("InvitedByUser", fields: [invitedBy], references: [id])
+  
+  invitedUserId   String?   @unique
+  invitedUser     User?     @relation("InvitedUser", fields: [invitedUserId], references: [id])
+  
+  marketerProfileId String?   @unique
+  marketerProfile   MarketerProfile? @relation(fields: [marketerProfileId], references: [id], map: "MarketerInvitation_marketerProfile")
+  
+  status          InvitationStatus @default(PENDING)
+  message         String?   @db.Text
+  expiresAt       DateTime
+  respondedAt     DateTime?
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([email])
+  @@index([token])
+  @@index([status])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+}
+
+model MarketerReferral {
+  @@map("marketer_referral")
+  id              String    @id @default(cuid())
+  
+  marketerId      String
+  marketer        MarketerProfile @relation(fields: [marketerId], references: [id], onDelete: Cascade)
+  
+  referredUserId  String
+  referredUser    User      @relation("ReferredByMarketer", fields: [referredUserId], references: [id])
+  
+  referralCode    String    // The code used at registration
+  referralSource   String?   // How they found the link (optional)
+  commissionEarned Decimal  @default(0) @db.Decimal(12, 2)
+  saleAmount      Decimal?  @db.Decimal(12, 2)
+  orderId         String?   // Link to order that earned commission
+  
+  status          ReferralStatus @default(PENDING)
+  
+  createdAt       DateTime  @default(now())
+  paidAt          DateTime?
+  earnedAt        DateTime? // When commission was earned
+  
+  @@unique([marketerId, referredUserId])
+}
+
+enum ReferralStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+// ============================================
 // PHOTOGRAPHER PROFILE
 // ============================================
 
 model Photographer {
+  @@map("photographer")
   id            String    @id @default(cuid())
   userId        String    @unique
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -212,6 +439,7 @@ enum PhotographerStatus {
 // ============================================
 
 model Photo {
+  @@map("photo")
   id            String    @id @default(cuid())
   title         String
   description   String?   @db.Text
@@ -282,6 +510,7 @@ enum LicenseType {
 // ============================================
 
 model Video {
+  @@map("video")
   id            String    @id @default(cuid())
   title         String
   description   String?   @db.Text
@@ -345,6 +574,7 @@ enum VideoQuality {
 }
 
 model VideoOrderItem {
+  @@map("video_order_item")
   id            String    @id @default(cuid())
   videoId       String
   video         Video     @relation(fields: [videoId], references: [id])
@@ -362,6 +592,7 @@ model VideoOrderItem {
 }
 
 model VideoCartItem {
+  @@map("video_cart_item")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -377,6 +608,7 @@ model VideoCartItem {
 }
 
 model VideoDownload {
+  @@map("video_download")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id])
@@ -392,6 +624,7 @@ model VideoDownload {
 }
 
 model VideoReview {
+  @@map("video_review")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id])
@@ -415,6 +648,7 @@ model VideoReview {
 // ============================================
 
 model Order {
+  @@map("order")
   id            String    @id @default(cuid())
   orderNumber   String    @unique
   userId        String
@@ -485,6 +719,7 @@ enum VerificationStatus {
 }
 
 model OrderItem {
+  @@map("order_item")
   id            String    @id @default(cuid())
   orderId       String
   order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -508,6 +743,7 @@ model OrderItem {
 // ============================================
 
 model CartItem {
+  @@map("cart_item")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -527,6 +763,7 @@ model CartItem {
 // ============================================
 
 model Download {
+  @@map("download")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id])
@@ -548,6 +785,7 @@ model Download {
 
 // Photo reviews
 model Review {
+  @@map("review")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id])
@@ -568,6 +806,7 @@ model Review {
 
 // Service Reviews (for completed service bookings)
 model ServiceReview {
+  @@map("service_review")
   id              String    @id @default(cuid())
   
   // User giving the review
@@ -619,6 +858,7 @@ model ServiceReview {
 // ============================================
 
 model JobApplication {
+  @@map("job_application")
   id            String    @id @default(cuid())
   
   // Client info
@@ -696,6 +936,7 @@ model JobApplication {
 // ============================================
 
 model JobInvitation {
+  @@map("job_invitation")
   id            String    @id @default(cuid())
   
   // Job being invited for
@@ -716,13 +957,6 @@ model JobInvitation {
   respondedAt   DateTime?
   
   @@unique([jobId, photographerId]) // One invitation per job per photographer
-}
-
-enum InvitationStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
-  EXPIRED
 }
 
 enum JobType {
@@ -772,6 +1006,7 @@ enum JobStatus {
 // ============================================
 
 model Payout {
+  @@map("payout")
   id              String    @id @default(cuid())
   photographerId String
   photographer    Photographer @relation(fields: [photographerId], references: [id])
@@ -809,6 +1044,7 @@ enum PayoutStatus {
 // ============================================
 
 model Address {
+  @@map("address")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -840,6 +1076,7 @@ enum AddressType {
 // ============================================
 
 model BlogPost {
+  @@map("blog_post")
   id            String    @id @default(cuid())
   title         String
   slug          String    @unique
@@ -866,6 +1103,7 @@ enum BlogStatus {
 // ============================================
 
 model Category {
+  @@map("category")
   id            String    @id @default(cuid())
   name          String    @unique
   slug          String    @unique
@@ -883,6 +1121,7 @@ model Category {
 // ============================================
 
 model Setting {
+  @@map("setting")
   id            String    @id @default(cuid())
   key           String    @unique
   value         String    @db.Text
@@ -896,6 +1135,7 @@ model Setting {
 // ============================================
 
 model Notification {
+  @@map("notification")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -931,6 +1171,7 @@ enum NotificationType {
 // ============================================
 
 model PromoCode {
+  @@map("promo_code")
   id            String    @id @default(cuid())
   code          String    @unique
   description   String?
@@ -986,6 +1227,7 @@ enum PromoScope {
 // ============================================
 
 model SubscriptionPlan {
+  @@map("subscription_plan")
   id            String    @id @default(cuid())
   name          String    // Basic, Premium, Pro
   slug          String    @unique
@@ -1017,6 +1259,7 @@ model SubscriptionPlan {
 }
 
 model UserSubscription {
+  @@map("user_subscription")
   id            String    @id @default(cuid())
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1055,6 +1298,7 @@ enum SubscriptionStatus {
 // ============================================
 
 model BpmPurchaseOffer {
+  @@map("bpm_purchase_offer")
   id            String    @id @default(cuid())
   
   // Photo details
@@ -1103,6 +1347,7 @@ enum BpmOfferStatus {
 // ============================================
 
 model PhotoEditingRequest {
+  @@map("photo_editing_request")
   id            String    @id @default(cuid())
   
   // User details
@@ -1161,6 +1406,7 @@ enum EditingStatus {
 // ============================================
 
 model ServicePayment {
+  @@map("service_payment")
   id              String    @id @default(cuid())
   
   // User details
@@ -1191,6 +1437,7 @@ model ServicePayment {
 // ============================================
 
 model Conversation {
+  @@map("conversation")
   id            String    @id @default(cuid())
   
   // Participants
@@ -1228,6 +1475,7 @@ model Conversation {
 }
 
 model Message {
+  @@map("message")
   id            String    @id @default(cuid())
   
   // Conversation
@@ -1274,6 +1522,7 @@ enum ConversationStatus {
 // ============================================
 
 model BpmService {
+  @@map("bpm_service")
   id            String    @id @default(cuid())
   
   // Service identification
@@ -1306,6 +1555,7 @@ model BpmService {
 
 // Service Options - Dynamic options for each BPM service
 model ServiceOption {
+  @@map("service_option")
   id            String    @id @default(cuid())
   
   // Option identification

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { theme } from "@/lib/admin-theme";
 
 export default function AdminPhotoEditingPage() {
   const { data: session, status } = useSession();
@@ -94,18 +95,18 @@ export default function AdminPhotoEditingPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className={`flex items-center justify-center min-h-screen ${theme.secondary}`}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${theme.secondary}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Photo Editing Requests</h1>
+            <h1 className={`text-3xl font-bold ${theme.heading}`}>Photo Editing Requests</h1>
             <p className="mt-1 text-gray-600">Manage photo editing service requests from customers</p>
           </div>
           
@@ -126,7 +127,7 @@ export default function AdminPhotoEditingPage() {
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         ) : requests.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
@@ -170,7 +171,7 @@ export default function AdminPhotoEditingPage() {
                       {request.id.slice(-8)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className={`text-sm font-medium ${theme.heading}`}>
                         {request.user?.name || 'Unknown'}
                       </div>
                       <div className="text-sm text-gray-500">
@@ -178,13 +179,13 @@ export default function AdminPhotoEditingPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{request.title}</div>
+                      <div className={`text-sm ${theme.heading}`}>{request.title}</div>
                       {request.originalUrl && (
                         <a
                           href={request.originalUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:underline"
+                          className="text-xs text-primary hover:underline"
                         >
                           View Original
                         </a>
@@ -193,7 +194,7 @@ export default function AdminPhotoEditingPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {request.editingType}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${theme.heading} font-medium`}>
                       KSh {parseFloat(request.totalPrice.toString()).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -207,7 +208,7 @@ export default function AdminPhotoEditingPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => setSelectedRequest(request)}
-                        className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                        className="text-primary hover:opacity-80 text-sm font-medium"
                       >
                         Manage
                       </button>
@@ -225,7 +226,7 @@ export default function AdminPhotoEditingPage() {
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-2xl font-bold text-gray-900">Manage Request</h2>
+                  <h2 className={`text-2xl font-bold ${theme.heading}`}>Manage Request</h2>
                   <button
                     onClick={() => setSelectedRequest(null)}
                     className="text-gray-400 hover:text-gray-600"
@@ -238,18 +239,18 @@ export default function AdminPhotoEditingPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Customer</label>
-                      <p className="text-gray-900">{selectedRequest.user?.name}</p>
+                      <p className={theme.heading}>{selectedRequest.user?.name}</p>
                       <p className="text-sm text-gray-500">{selectedRequest.user?.email}</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Date Submitted</label>
-                      <p className="text-gray-900">{new Date(selectedRequest.createdAt).toLocaleString()}</p>
+                      <p className={theme.heading}>{new Date(selectedRequest.createdAt).toLocaleString()}</p>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Title</label>
-                    <p className="text-gray-900">{selectedRequest.title}</p>
+                    <p className={theme.heading}>{selectedRequest.title}</p>
                   </div>
 
                   {selectedRequest.description && (
@@ -266,7 +267,7 @@ export default function AdminPhotoEditingPage() {
                         href={selectedRequest.originalUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
+                        className="text-primary hover:underline"
                       >
                         View Original Photo →
                       </a>
@@ -276,7 +277,7 @@ export default function AdminPhotoEditingPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Editing Type</label>
-                      <p className="text-gray-900">{selectedRequest.editingType}</p>
+                      <p className={theme.heading}>{selectedRequest.editingType}</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Services</label>
@@ -293,7 +294,7 @@ export default function AdminPhotoEditingPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Price</label>
-                    <p className="text-xl font-bold text-blue-600">
+                    <p className="text-xl font-bold text-primary">
                       KSh {parseFloat(selectedRequest.totalPrice.toString()).toLocaleString()}
                     </p>
                   </div>

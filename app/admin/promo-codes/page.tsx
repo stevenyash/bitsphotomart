@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { theme } from "@/lib/admin-theme";
 
 interface PromoCode {
   id: string;
@@ -99,13 +100,13 @@ export default function PromoCodesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className={`min-h-screen ${theme.secondary} p-8`}>
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Promo Codes</h1>
+          <h1 className={`text-3xl font-bold ${theme.heading}`}>Promo Codes</h1>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90"
           >
             {showForm ? 'Cancel' : 'Create Promo Code'}
           </button>
@@ -113,105 +114,105 @@ export default function PromoCodesPage() {
 
         {/* Create Form */}
         {showForm && (
-          <div className="bg-white rounded-lg shadow mb-8 p-6">
-            <h2 className="text-xl font-semibold mb-4">Create New Promo Code</h2>
+          <div className={`${theme.cardStyle} mb-8 p-6`}>
+            <h2 className={`text-xl font-semibold mb-4 ${theme.heading}`}>Create New Promo Code</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Code</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Code</label>
                 <input
                   type="text"
                   name="code"
                   required
                   value={formData.code}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg uppercase"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg uppercase`}
                   placeholder="SUMMER20"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Discount Type</label>
                 <select
                   name="discountType"
                   value={formData.discountType}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                 >
                   <option value="PERCENTAGE">Percentage (%)</option>
                   <option value="FIXED">Fixed Amount (KES)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Discount Value</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Discount Value</label>
                 <input
                   type="number"
                   name="discountValue"
                   required
                   value={formData.discountValue}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                   placeholder={formData.discountType === 'PERCENTAGE' ? '20' : '500'}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Max Uses</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Max Uses</label>
                 <input
                   type="number"
                   name="maxUses"
                   value={formData.maxUses}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                   placeholder="100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Max Per User</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Max Per User</label>
                 <input
                   type="number"
                   name="maxUsesPerUser"
                   value={formData.maxUsesPerUser}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                   placeholder="1"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Min Order (KES)</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Min Order (KES)</label>
                 <input
                   type="number"
                   name="minOrderAmount"
                   value={formData.minOrderAmount}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                   placeholder="1000"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Valid From</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Valid From</label>
                 <input
                   type="date"
                   name="validFrom"
                   value={formData.validFrom}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Valid Until</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Valid Until</label>
                 <input
                   type="date"
                   name="validUntil"
                   value={formData.validUntil}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Applies To</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Applies To</label>
                 <select
                   name="appliesTo"
                   value={formData.appliesTo}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                 >
                   <option value="ALL">All</option>
                   <option value="PHOTOS">Photos Only</option>
@@ -221,13 +222,13 @@ export default function PromoCodesPage() {
                 </select>
               </div>
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Description</label>
                 <input
                   type="text"
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={`w-full px-3 py-2 ${theme.input} ${theme.border} rounded-lg`}
                   placeholder="Summer sale discount"
                 />
               </div>
@@ -242,27 +243,27 @@ export default function PromoCodesPage() {
 
         {/* Promo Codes List */}
         {loading ? (
-          <div className="text-center py-12">Loading...</div>
+          <div className={`text-center py-12 ${theme.mutedText}`}>Loading...</div>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className={`${theme.cardStyle} overflow-hidden`}>
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className={theme.secondary}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Discount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usage</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Validity</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Applies To</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Code</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Discount</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Usage</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Validity</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Applies To</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Status</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className={`divide-y divide-gray-200 ${theme.body}`}>
                 {promoCodes.map((promo) => (
-                  <tr key={promo.id} className="hover:bg-gray-50">
+                  <tr key={promo.id} className={`${theme.tableRowHover}`}>
                     <td className="px-6 py-4">
                       <span className="font-mono font-bold text-lg">{promo.code}</span>
-                      {promo.description && <p className="text-sm text-gray-500">{promo.description}</p>}
+                      {promo.description && <p className={`text-sm ${theme.mutedText}`}>{promo.description}</p>}
                     </td>
                     <td className="px-6 py-4">
                       {promo.discountType === 'PERCENTAGE' ? (
@@ -271,16 +272,16 @@ export default function PromoCodesPage() {
                         <span className="text-green-600 font-semibold">KES {promo.discountValue} OFF</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className={`px-6 py-4 text-sm ${theme.heading}`}>
                       {promo.usedCount} / {promo.maxUses || '∞'}
-                      {promo.maxUsesPerUser && <span className="text-gray-500"> (max {promo.maxUsesPerUser}/user)</span>}
+                      {promo.maxUsesPerUser && <span className={theme.mutedText}> (max {promo.maxUsesPerUser}/user)</span>}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className={`px-6 py-4 text-sm ${theme.heading}`}>
                       {promo.validFrom && <div>From: {new Date(promo.validFrom).toLocaleDateString()}</div>}
                       {promo.validUntil && <div>Until: {new Date(promo.validUntil).toLocaleDateString()}</div>}
-                      {!promo.validFrom && !promo.validUntil && <span className="text-gray-500">No expiry</span>}
+                      {!promo.validFrom && !promo.validUntil && <span className={theme.mutedText}>No expiry</span>}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{promo.appliesTo}</td>
+                    <td className={`px-6 py-4 text-sm ${theme.heading}`}>{promo.appliesTo}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${promo.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {promo.isActive ? 'Active' : 'Inactive'}
@@ -299,7 +300,7 @@ export default function PromoCodesPage() {
               </tbody>
             </table>
             {promoCodes.length === 0 && (
-              <div className="text-center py-12 text-gray-500">No promo codes found</div>
+              <div className={`text-center py-12 ${theme.mutedText}`}>No promo codes found</div>
             )}
           </div>
         )}

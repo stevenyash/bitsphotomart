@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
+import { theme, adminLayout } from "@/lib/admin-theme";
+import {
   Check, 
   X, 
   Trash2, 
@@ -15,7 +17,6 @@ import {
   ArrowLeft,
   Loader2
 } from "lucide-react";
-import {router} from "next/client";
 
 interface Photo {
   id: string;
@@ -40,20 +41,29 @@ interface Photo {
 }
 
 export default function AdminPhotosPage() {
+  const router = useRouter();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "PENDING" | "APPROVED" | "REJECTED">("PENDING");
   const [searchTerm, setSearchTerm] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 12,
+    total: 0,
+    pages: 0,
+  });
 
   useEffect(() => {
     fetchPhotos();
-  }, [filter]);
+  }, [filter, pagination.page]);
 
   const fetchPhotos = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
+      params.set("page", pagination.page.toString());
+      params.set("limit", pagination.limit.toString());
       if (filter === "PENDING") params.set("status", "PENDING");
       if (filter === "APPROVED") params.set("status", "APPROVED");
       if (filter === "REJECTED") params.set("status", "REJECTED");
@@ -63,6 +73,13 @@ export default function AdminPhotosPage() {
       
       if (data.photos) {
         setPhotos(data.photos);
+        if (data.pagination) {
+          setPagination(prev => ({
+            ...prev,
+            total: data.pagination.total,
+            pages: data.pagination.pages,
+          }));
+        }
       }
     } catch (error) {
       console.error("Error fetching photos:", error);
@@ -142,7 +159,7 @@ export default function AdminPhotosPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${theme.background}`}>
       {/* Header */}
       <div className="bg-red-600 text-white">
         <div className="container mx-auto px-4 py-4">
@@ -155,7 +172,7 @@ export default function AdminPhotosPage() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Photo Management</h1>
+              <h1 className="text-2xl font-bold text-white">Photo Management</h1>
               <p className="text-red-100">Approve, reject, or remove photos</p>
             </div>
           </div>
@@ -170,7 +187,7 @@ export default function AdminPhotosPage() {
               <Button
                 key={f}
                 variant={filter === f ? "default" : "outline"}
-                onClick={() => setFilter(f)}
+                onClick={() => { setFilter(f); setPagination(p => ({ ...p, page: 1 })); }}
                 className={filter === f ? "bg-red-600 hover:bg-red-700" : ""}
               >
                 {f === "PENDING" && "Pending"}
@@ -187,15 +204,15 @@ export default function AdminPhotosPage() {
               placeholder="Search by title or photographer..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className={`pl-10 ${theme.input}`}
             />
           </div>
         </div>
 
         {/* Stats */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <p className="text-sm text-gray-600">
-            Showing <span className="font-semibold">{filteredPhotos.length}</span> photos
+        <div className={`${theme.cardStyle} p-4 mb-6`}>
+          <p className={`text-sm ${theme.mutedText}`}>
+            Showing <span className="font-semibold">{photos.length}</span> of <span className="font-semibold">{pagination.total}</span> photos
             {filter !== "ALL" && ` (${filter.toLowerCase()})`}
           </p>
         </div>
@@ -205,24 +222,10 @@ export default function AdminPhotosPage() {
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           </div>
-        ) : filteredPhotos.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <Image className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No photos found</h3>
-            <p className="text-gray-600">
-              {filter === "PENDING" 
-                ? "No photos waiting for approval."
-                : filter === "APPROVED"
-                ? "No approved photos yet."
-                : filter === "REJECTED"
-                ? "No rejected photos."
-                : "No photos in the system."}
-            </p>
-          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPhotos.map((photo) => (
-              <div key={photo.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+            {photos.map((photo) => (
+              <div key={photo.id} className={`${theme.cardStyle} overflow-hidden`}>
                 {/* Image */}
                 <div className="aspect-video relative bg-gray-100">
                   <img
@@ -249,10 +252,10 @@ export default function AdminPhotosPage() {
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-1 truncate">
+                  <h3 className={`font-semibold ${theme.heading} mb-1 truncate`}>
                     {photo.title}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className={`text-sm ${theme.mutedText} mb-2`}>
                     by {photo.photographer.user.name || photo.photographer.user.email}
                   </p>
                   <div className="flex items-center justify-between text-sm">
@@ -260,7 +263,7 @@ export default function AdminPhotosPage() {
                       KES {photo.price.toLocaleString()}
                     </span>
                     {photo.category && (
-                      <span className="text-gray-500">
+                      <span className={theme.mutedText}>
                         {photo.category.name}
                       </span>
                     )}
@@ -275,7 +278,7 @@ export default function AdminPhotosPage() {
 
                 {/* Actions */}
                 {filter === "PENDING" && (
-                  <div className="border-t px-4 py-3 flex gap-2">
+                  <div className={`border-t ${theme.border} px-4 py-3 flex gap-2`}>
                     <Button
                       size="sm"
                       onClick={() => handleApprove(photo.id)}
@@ -310,7 +313,7 @@ export default function AdminPhotosPage() {
                   </div>
                 )}
                 
-                <div className="border-t px-4 py-3">
+                <div className={`border-t ${theme.border} px-4 py-3`}>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -333,6 +336,31 @@ export default function AdminPhotosPage() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {pagination.pages > 1 && (
+        <div className="flex justify-center gap-2 mt-6">
+          <Button
+            variant="outline"
+            disabled={pagination.page === 1}
+            onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
+            className={pagination.page === 1 ? "opacity-50" : ""}
+          >
+            Previous
+          </Button>
+          <span className={`flex items-center px-4 text-sm ${theme.mutedText}`}>
+            Page {pagination.page} of {pagination.pages}
+          </span>
+          <Button
+            variant="outline"
+            disabled={pagination.page === pagination.pages}
+            onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
+            className={pagination.page === pagination.pages ? "opacity-50" : ""}
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

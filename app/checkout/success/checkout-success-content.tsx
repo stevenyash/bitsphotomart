@@ -1,5 +1,6 @@
 "use client";
 
+import { theme } from "@/lib/admin-theme";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -66,7 +67,7 @@ export function CheckoutSuccessContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading order details...</p>
@@ -77,7 +78,7 @@ export function CheckoutSuccessContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="text-red-600 mb-4">{error}</div>
           <Link href="/">
@@ -89,7 +90,7 @@ export function CheckoutSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-[var(--background)] py-12">
       <div className="max-w-2xl mx-auto px-4">
         {/* Success Header */}
         <div className="text-center mb-8">

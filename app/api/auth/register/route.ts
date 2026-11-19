@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, password, phone } = body;
+    const { name, email, password, phone, referralCode } = body;
 
     // Validate required fields
     if (!email || !password) {
@@ -42,6 +42,20 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Find marketer by referral code
+    let marketerProfile = null;
+    if (referralCode) {
+      marketerProfile = await prisma.marketerProfile.findUnique({
+        where: { referralCode },
+        include: { user: true },
+      });
+      
+      // Only allow referral from active marketers
+      if (marketerProfile && marketerProfile.status !== 'ACTIVE') {
+        marketerProfile = null;
+      }
+    }
+
     // Create user
     const user = await prisma.user.create({
       data: {
@@ -53,8 +67,34 @@ export async function POST(request: Request) {
       },
     });
 
+    // Create referral record if valid referral code was provided
+    if (marketerProfile) {
+      await prisma.marketerReferral.create({
+        data: {
+          marketerId: marketerProfile.id,
+          referredUserId: user.id,
+          referralCode: referralCode,
+          referralSource: 'website',
+          status: 'PENDING',
+        },
+      });
+      
+      // Update marketer's active clients count
+      await prisma.marketerProfile.update({
+        where: { id: marketerProfile.id },
+        data: {
+          activeClients: { increment: 1 },
+        },
+      });
+    }
+
     return NextResponse.json(
-      { message: "User created successfully", user: { id: user.id, email: user.email } },
+      { 
+        message: "User created successfully", 
+        user: { id: user.id, email: user.email },
+        referred: !!marketerProfile,
+        referredBy: marketerProfile ? marketerProfile.user.name || marketerProfile.user.email : null
+      },
       { status: 201 }
     );
   } catch (error) {

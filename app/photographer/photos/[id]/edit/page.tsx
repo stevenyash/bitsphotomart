@@ -167,8 +167,8 @@ export default function EditPhotoPage({ params }: { params: Promise<{ id: string
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-      <div className="bg-slate-800 border-b border-slate-700">
+    <div className="min-h-screen bg-[var(--background)]">
+      <div className="bg-[var(--card)] border-b border-[var(--border)]">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { theme } from "@/lib/admin-theme";
 
 interface SubscriptionPlan {
   id: string;
@@ -99,11 +100,11 @@ export default function SubscriptionPlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className={`min-h-screen ${theme.secondary} p-8`}>
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Subscription Plans</h1>
-          <button onClick={() => setShowForm(!showForm)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <h1 className={`text-3xl font-bold ${theme.heading}`}>Subscription Plans</h1>
+          <button onClick={() => setShowForm(!showForm)} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90">
             {showForm ? 'Cancel' : 'Create Plan'}
           </button>
         </div>
@@ -167,7 +168,7 @@ export default function SubscriptionPlansPage() {
               <div key={plan.id} className={`bg-white rounded-lg shadow p-6 ${plan.isPopular ? 'ring-2 ring-blue-500' : ''}`}>
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+                    <h3 className={`text-xl font-bold ${theme.heading}`}>{plan.name}</h3>
                     {plan.isPopular && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Popular</span>}
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${plan.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

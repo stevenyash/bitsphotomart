@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Camera } from 'lucide-react';
+import { Camera, ArrowLeft } from 'lucide-react';
 
 // Blog post type
 interface BlogPost {
@@ -134,39 +134,47 @@ export default function BlogPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-6xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Bits Photo Mart Blog</h1>
-          <p className="text-lg text-gray-600">News, tutorials, and insights from the world of photography</p>
+          <h1 className="text-4xl font-bold text-foreground mb-4">Bits Photo Mart Blog</h1>
+          <p className="text-lg text-muted-foreground">News, tutorials, and insights from the world of photography</p>
         </div>
 
         {/* Featured Post */}
         {featuredPost && !showFullPost && (
-          <div className="mb-12 bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="mb-12 bg-card rounded-2xl shadow-lg overflow-hidden">
             <Link href={`/blog/${featuredPost.slug}`}>
               <div className="md:flex cursor-pointer hover:opacity-95 transition-opacity">
-                <div className="md:w-1/2 bg-gradient-to-br from-blue-500 to-purple-600 min-h-[300px] flex items-center justify-center">
+                <div className="md:w-1/2 bg-primary min-h-[300px] flex items-center justify-center">
                   {featuredPost.coverImage ? (
                     <img src={featuredPost.coverImage} alt={featuredPost.title} className="w-full h-full object-cover" />
                   ) : (
-                    <Camera className="w-16 h-16 text-white" />
+                    <Camera className="w-16 h-16 text-primary-foreground" />
                   )}
                 </div>
                 <div className="md:w-1/2 p-8">
-                  <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm mb-4">
+                  <span className="inline-block bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm mb-4">
                     Featured
                   </span>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{featuredPost.title}</h2>
-                  <p className="text-gray-600 mb-4">{featuredPost.excerpt}</p>
-                  <div className="flex items-center text-sm text-gray-500">
+                  <h2 className="text-2xl font-bold text-foreground mb-2">{featuredPost.title}</h2>
+                  <p className="text-muted-foreground mb-4">{featuredPost.excerpt}</p>
+                  <div className="flex items-center text-sm text-muted-foreground">
                     <span>{featuredPost.author}</span>
                     <span className="mx-2">•</span>
                     <span>{featuredPost.publishedAt}</span>
@@ -186,8 +194,8 @@ export default function BlogPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   selectedCategory === cat
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card text-muted-foreground hover:bg-muted'
                 }`}
               >
                 {cat}
@@ -198,28 +206,28 @@ export default function BlogPage() {
 
         {/* Selected Post View */}
         {selectedPost && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+          <div className="bg-card rounded-2xl shadow-lg p-8 mb-8">
             <button 
               onClick={() => setShowFullPost(null)}
-              className="text-blue-600 hover:underline mb-4"
+              className="text-primary hover:underline mb-4"
             >
               ← Back to Blog
             </button>
-            <span className="inline-block bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm mb-4">
+            <span className="inline-block bg-muted text-muted-foreground px-3 py-1 rounded-full text-sm mb-4">
               {selectedPost.category}
             </span>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{selectedPost.title}</h1>
-            <div className="flex items-center text-sm text-gray-500 mb-6">
+            <h1 className="text-3xl font-bold text-foreground mb-4">{selectedPost.title}</h1>
+            <div className="flex items-center text-sm text-muted-foreground mb-6">
               <span>By {selectedPost.author}</span>
               <span className="mx-2">•</span>
               <span>{selectedPost.publishedAt}</span>
             </div>
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl h-64 flex items-center justify-center mb-6">
-              <Camera className="w-16 h-16 text-gray-400" />
+            <div className="bg-muted rounded-xl h-64 flex items-center justify-center mb-6">
+              <Camera className="w-16 h-16 text-muted-foreground" />
             </div>
             <div className="prose max-w-none">
-              <p className="text-gray-700 leading-relaxed">{selectedPost.content}</p>
-              <p className="text-gray-700 leading-relaxed mt-4">
+              <p className="text-foreground leading-relaxed">{selectedPost.content}</p>
+              <p className="text-foreground leading-relaxed mt-4">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
                 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
               </p>
@@ -233,23 +241,23 @@ export default function BlogPage() {
             {filteredPosts.map(post => (
               <article 
                 key={post.id} 
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                className="bg-card rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                 onClick={() => setShowFullPost(post)}
               >
-                <div className="bg-gradient-to-br from-gray-100 to-gray-200 h-48 flex items-center justify-center">
-                  <Camera className="w-12 h-12 text-gray-400" />
+                <div className="bg-muted h-48 flex items-center justify-center">
+                  <Camera className="w-12 h-12 text-muted-foreground" />
                 </div>
                 <div className="p-6">
-                  <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                  <span className="text-xs font-medium text-primary uppercase tracking-wide">
                     {post.category}
                   </span>
-                  <h3 className="text-lg font-bold text-gray-900 mt-2 mb-2 line-clamp-2">
+                  <h3 className="text-lg font-bold text-foreground mt-2 mb-2 line-clamp-2">
                     {post.title}
                   </h3>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                     {post.excerpt}
                   </p>
-                  <div className="flex items-center text-xs text-gray-500">
+                  <div className="flex items-center text-xs text-muted-foreground">
                     <span>{post.author}</span>
                     <span className="mx-2">•</span>
                     <span>{post.publishedAt}</span>
@@ -262,7 +270,7 @@ export default function BlogPage() {
 
         {filteredPosts.length === 0 && !selectedPost && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No posts found in this category.</p>
+            <p className="text-muted-foreground">No posts found in this category.</p>
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { theme } from "@/lib/admin-theme";
 
 interface Photographer {
   id: string;
@@ -60,13 +61,13 @@ interface ServiceRequest {
 }
 
 const statusColors: Record<string, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  REVIEWING: 'bg-blue-100 text-blue-800',
-  ASSIGNED: 'bg-purple-100 text-purple-800',
-  IN_PROGRESS: 'bg-indigo-100 text-indigo-800',
-  COMPLETED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
-  REJECTED: 'bg-gray-100 text-gray-800',
+  PENDING: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
+  REVIEWING: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
+  ASSIGNED: 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
+  IN_PROGRESS: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
+  COMPLETED: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
+  CANCELLED: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200',
+  REJECTED: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
 };
 
 const jobTypeLabels: Record<string, string> = {
@@ -252,10 +253,10 @@ export default function ServiceRequestsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className={`min-h-screen ${theme.secondary} p-8`}>
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Service Requests</h1>
+          <h1 className={`text-3xl font-bold ${theme.heading}`}>Service Requests</h1>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -291,21 +292,21 @@ export default function ServiceRequestsPage() {
                 {requests.map((req) => (
                   <tr key={req.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">{req.clientName}</div>
+                      <div className={`font-medium ${theme.heading}`}>{req.clientName}</div>
                       <div className="text-sm text-gray-500">{req.clientEmail}</div>
                       <div className="text-sm text-gray-500">{req.clientPhone}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{jobTypeLabels[req.jobType] || req.jobType}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{req.location}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{req.eventDate ? new Date(req.eventDate).toLocaleDateString() : '-'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{req.budget ? `KES ${parseFloat(req.budget).toLocaleString()}` : '-'}</td>
+                    <td className={`px-6 py-4 text-sm ${theme.heading}`}>{jobTypeLabels[req.jobType] || req.jobType}</td>
+                    <td className={`px-6 py-4 text-sm ${theme.heading}`}>{req.location}</td>
+                    <td className={`px-6 py-4 text-sm ${theme.heading}`}>{req.eventDate ? new Date(req.eventDate).toLocaleDateString() : '-'}</td>
+                    <td className={`px-6 py-4 text-sm ${theme.heading}`}>{req.budget ? `KES ${parseFloat(req.budget).toLocaleString()}` : '-'}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[req.status] || 'bg-gray-100'}`}>
                         {req.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button onClick={() => { setSelectedRequest(req); setInvitationsSentForSelected(false); }} className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      <button onClick={() => { setSelectedRequest(req); setInvitationsSentForSelected(false); }} className="text-primary hover:opacity-80 text-sm font-medium">
                         View Details
                       </button>
                     </td>
@@ -323,7 +324,7 @@ export default function ServiceRequestsPage() {
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-2xl font-bold text-gray-900">Service Request Details</h2>
+                  <h2 className={`text-2xl font-bold ${theme.heading}`}>Service Request Details</h2>
                   <button onClick={() => setSelectedRequest(null)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
                 </div>
                 
@@ -454,7 +455,7 @@ export default function ServiceRequestsPage() {
                         {selectedRequest.clientMediaUrl && (
                           <div className="col-span-2">
                             <label className="text-sm text-gray-500">Client Media</label>
-                            <a href={selectedRequest.clientMediaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
+                            <a href={selectedRequest.clientMediaUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
                               View Attached Media →
                             </a>
                           </div>
@@ -465,7 +466,7 @@ export default function ServiceRequestsPage() {
 
                   <div>
                     <label className="text-sm text-gray-500">Description</label>
-                    <p className="mt-1 text-gray-900 whitespace-pre-wrap">{selectedRequest.description}</p>
+                    <p className={`mt-1 ${theme.heading} whitespace-pre-wrap`}>{selectedRequest.description}</p>
                   </div>
 
                   {selectedRequest.clientAddress && (
@@ -484,8 +485,8 @@ export default function ServiceRequestsPage() {
                         disabled={!invitationsSentForSelected && !selectedRequest.photographer}
                         className={`text-sm font-medium ${
                           !invitationsSentForSelected && !selectedRequest.photographer
-                            ? 'text-gray-400 cursor-not-allowed'
-                            : 'text-blue-600 hover:text-blue-800'
+                            ? 'text-muted-foreground cursor-not-allowed'
+                            : 'text-primary hover:opacity-80'
                         }`}
                         title={!invitationsSentForSelected && !selectedRequest.photographer ? 'Please send invitations to photographers first' : ''}
                       >
@@ -617,7 +618,7 @@ export default function ServiceRequestsPage() {
                         <button
                           key={status}
                           onClick={() => updateStatus(selectedRequest.id, status)}
-                          className={`px-3 py-1 rounded text-sm ${selectedRequest.status === status ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+                          className={`px-3 py-1 rounded text-sm ${selectedRequest.status === status ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'}`}
                         >
                           {status}
                         </button>

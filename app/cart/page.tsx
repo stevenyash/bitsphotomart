@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { ShoppingCart, ArrowLeft } from "lucide-react";
 import { CartContent } from "@/components/cart/cart-content";
+import { theme } from "@/lib/admin-theme";
 
 export default async function CartPage() {
   const session = await auth();
@@ -56,8 +57,8 @@ export default async function CartPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50">
-      <div className="bg-white border-b">
+    <div className="min-h-screen bg-[var(--background)]">
+      <div className={`${theme.card} border-b`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -67,7 +68,7 @@ export default async function CartPage() {
                   Back to Gallery
                 </Button>
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-[var(--foreground)] flex items-center gap-2">
                 <ShoppingCart className="w-6 h-6" />
                 Shopping Cart
               </h1>

@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, Loader2, Gift, CheckCircle } from "lucide-react";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get("ref");
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,6 +21,23 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [referredBy, setReferredBy] = useState<string | null>(null);
+  const [verifyingRef, setVerifyingRef] = useState(false);
+
+  useEffect(() => {
+    if (referralCode) {
+      setVerifyingRef(true);
+      fetch(`/api/auth/verify-ref?code=${referralCode}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.valid && data.marketer) {
+            setReferredBy(data.marketer.user.name || data.marketer.user.email);
+          }
+        })
+        .catch(console.error)
+        .finally(() => setVerifyingRef(false));
+    }
+  }, [referralCode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,6 +68,7 @@ export default function RegisterPage() {
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
+          referralCode: referralCode,
         }),
       });
 
@@ -57,8 +78,7 @@ export default function RegisterPage() {
         throw new Error(data.error || "Registration failed");
       }
 
-      // Redirect to login after successful registration
-      router.push("/login?registered=true");
+      router.push("/login?registered=true&referred=" + (data.referred ? "true" : "false"));
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
@@ -68,17 +88,36 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-muted dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12 px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <Camera className="h-10 w-10 text-amber-600" />
+            <Camera className="h-10 w-10 text-primary" />
             <span className="text-2xl font-bold text-foreground">Bits Photo Mart</span>
           </Link>
         </div>
 
-        {/* Register Form */}
+        {(referralCode || verifyingRef) && (
+          <div className="bg-accent border border-accent-foreground/20 rounded-lg p-4 mb-6">
+            {verifyingRef ? (
+              <div className="flex items-center gap-2 text-pink-600">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Verifying referral code...</span>
+              </div>
+            ) : referredBy ? (
+              <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                <CheckCircle className="w-5 h-5" />
+                <span>You're being referred by <strong>{referredBy}</strong></span>
+              </div>
+            ) : (
+              <div className="text-pink-600">
+                <Gift className="w-5 h-5 inline mr-2" />
+                Special offer applied!
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="bg-card border border-border rounded-lg shadow-xl p-8">
           <h1 className="text-2xl font-bold text-center mb-6 text-foreground">Create Account</h1>
           
@@ -168,7 +207,7 @@ export default function RegisterPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -183,29 +222,56 @@ export default function RegisterPage() {
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-amber-600 hover:text-amber-700 dark:text-amber-500 font-medium">
+              <Link href="/login" className="text-primary hover:text-primary/70 dark:text-primary font-medium">
                 Sign in here
               </Link>
             </p>
           </div>
         </div>
 
-        {/* Info */}
-        <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-sm border border-amber-200 dark:border-amber-800">
-          <p className="font-medium text-amber-800 dark:text-amber-300">
-            📷 Join Bits Photo Mart
+        <div className="mt-6 p-4 bg-muted rounded-lg text-sm border border-border">
+          <p className="font-medium">
+            Join Bits Photo Mart
           </p>
-          <p className="text-amber-700 dark:text-amber-400 mt-1">
+          <p className="mt-1">
             Register to buy photos, hire photographers, or sell your creative work.
           </p>
-          <p className="mt-3 text-amber-700 dark:text-amber-400">
+          <p className="mt-3">
             Are you a photographer?{" "}
-            <Link href="/register/photographer" className="font-medium text-amber-800 dark:text-amber-300 hover:underline">
+            <Link href="/register/photographer" className="font-medium text-primary hover:underline">
               Register as a photographer →
             </Link>
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+function RegisterFormFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-muted dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12 px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2">
+            <Camera className="h-10 w-10 text-primary" />
+            <span className="text-2xl font-bold text-foreground">Bits Photo Mart</span>
+          </Link>
+        </div>
+        <div className="bg-card border border-border rounded-lg shadow-xl p-8">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<RegisterFormFallback />}>
+      <RegisterForm />
+    </Suspense>
   );
 }

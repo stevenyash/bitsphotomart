@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Spinner } from "@/components/ui/spinner";
 import { ArrowLeft, Lock, KeyRound, CheckCircle } from "lucide-react";
 
-export default function ResetPasswordPage() {
+const API_BASE = process.env.NEXT_PUBLIC_APP_URL || "";
+
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -33,7 +35,17 @@ export default function ResetPasswordPage() {
       }
 
       try {
-        const response = await fetch(`/api/auth/reset-password?token=${token}`);
+        const response = await fetch(`${API_BASE}/api/auth/reset-password?token=${token}`);
+        const contentType = response.headers.get("content-type");
+        
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await response.text();
+          console.error("Non-JSON response:", text.substring(0, 200));
+          setError("Server error. Please try again or contact support.");
+          setValidatingToken(false);
+          return;
+        }
+        
         const data = await response.json();
         
         if (data.valid) {
@@ -42,7 +54,8 @@ export default function ResetPasswordPage() {
           setError(data.error || "Invalid or expired reset token");
         }
       } catch (err) {
-        setError("Failed to validate reset token");
+        console.error("Token validation error:", err);
+        setError("Failed to validate reset token. Please try again.");
       } finally {
         setValidatingToken(false);
       }
@@ -78,11 +91,21 @@ export default function ResetPasswordPage() {
     setLoading(true);
     
     try {
-      const response = await fetch("/api/auth/reset-password", {
+      const response = await fetch(`${API_BASE}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),
       });
+      
+      const contentType = response.headers.get("content-type");
+      
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Non-JSON response:", text.substring(0, 200));
+        setError("Server error. Please try again or contact support.");
+        setLoading(false);
+        return;
+      }
       
       const data = await response.json();
       
@@ -245,5 +268,24 @@ export default function ResetPasswordPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center gap-4">
+              <Spinner size="lg" />
+              <p className="text-muted-foreground">Loading...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

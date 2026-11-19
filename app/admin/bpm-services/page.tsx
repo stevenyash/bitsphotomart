@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { theme } from "@/lib/admin-theme";
 
 interface BpmService {
   id: string;
@@ -270,6 +271,7 @@ export default function AdminBpmServicesPage() {
       value: option.value,
       label: option.label,
       description: option.description || '',
+      price: option.price ?? 0,
       category: option.category,
       displayOrder: option.displayOrder,
       isActive: option.isActive,
@@ -299,6 +301,7 @@ export default function AdminBpmServicesPage() {
       value: '',
       label: '',
       description: '',
+      price: 0,
       category: 'job_types',
       displayOrder: 0,
       isActive: true,
@@ -321,19 +324,19 @@ export default function AdminBpmServicesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className={`min-h-screen ${theme.secondary} flex items-center justify-center`}>
+        <div className={`text-xl ${theme.mutedText}`}>Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className={`min-h-screen ${theme.secondary}`}>
       <div className="bg-red-700 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">BPM Services</h1>
+              <h1 className="text-3xl font-bold text-white">BPM Services</h1>
               <p className="text-red-100 text-lg">
                 Manage BPM services and their options
               </p>
@@ -382,7 +385,7 @@ export default function AdminBpmServicesPage() {
         {activeTab === 'services' && (
           <div className="bg-white rounded-b-xl shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">BPM Services List</h2>
+              <h2 className={`text-xl font-bold ${theme.heading}`}>BPM Services List</h2>
               <button
                 onClick={openNewService}
                 className="bg-red-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-800"
@@ -407,8 +410,8 @@ export default function AdminBpmServicesPage() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-bold text-lg text-gray-900">{service.name}</h3>
-                        <p className="text-sm text-gray-500">{service.slug}</p>
+                        <h3 className={`font-bold text-lg ${theme.heading}`}>{service.name}</h3>
+                        <p className={`text-sm ${theme.mutedText}`}>{service.slug}</p>
                       </div>
                       <div className="flex gap-2">
                         <button
@@ -416,7 +419,7 @@ export default function AdminBpmServicesPage() {
                             e.stopPropagation();
                             openEditService(service);
                           }}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
+                          className="text-primary hover:opacity-80 text-sm"
                         >
                           Edit
                         </button>
@@ -432,7 +435,7 @@ export default function AdminBpmServicesPage() {
                       </div>
                     </div>
                     {service.description && (
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">{service.description}</p>
+                      <p className={`text-sm ${theme.mutedText} mt-2 line-clamp-2`}>{service.description}</p>
                     )}
                     <div className="mt-3 flex gap-2">
                       <button
@@ -466,7 +469,7 @@ export default function AdminBpmServicesPage() {
           <div className="bg-white rounded-b-xl shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedService.name} - Options</h2>
+                <h2 className={`text-xl font-bold ${theme.heading}`}>{selectedService.name} - Options</h2>
                 <p className="text-sm text-gray-500">Manage service options for this BPM service</p>
               </div>
               <button
@@ -492,7 +495,7 @@ export default function AdminBpmServicesPage() {
                 {Object.entries(groupedOptions).map(([category, categoryOptions]) => (
                   <div key={category} className="border rounded-lg overflow-hidden">
                     <div className="bg-gray-50 px-4 py-3 border-b">
-                      <h3 className="font-bold text-gray-900">{getCategoryLabel(category)}</h3>
+                      <h3 className={`font-bold ${theme.heading}`}>{getCategoryLabel(category)}</h3>
                       <p className="text-xs text-gray-500">{categoryOptions.length} option(s)</p>
                     </div>
                     <div className="divide-y">
@@ -515,7 +518,7 @@ export default function AdminBpmServicesPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEditOption(option)}
-                              className="text-blue-600 hover:text-blue-800 text-sm"
+                              className="text-primary hover:opacity-80 text-sm"
                             >
                               Edit
                             </button>
@@ -542,7 +545,7 @@ export default function AdminBpmServicesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className={`text-xl font-bold ${theme.heading}`}>
                 {selectedService ? 'Edit Service' : 'Add New Service'}
               </h2>
             </div>
@@ -677,7 +680,7 @@ export default function AdminBpmServicesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className={`text-xl font-bold ${theme.heading}`}>
                 {editingOption ? 'Edit Option' : 'Add New Option'}
               </h2>
             </div>

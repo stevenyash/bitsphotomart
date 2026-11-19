@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Spinner } from "@/components/ui/spinner";
 import { ArrowLeft, Mail, KeyRound } from "lucide-react";
 
+const API_BASE = process.env.NEXT_PUBLIC_APP_URL || "";
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -33,11 +35,21 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     
     try {
-      const response = await fetch("/api/auth/forgot-password", {
+      const response = await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+      
+      const contentType = response.headers.get("content-type");
+      
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Non-JSON response:", text.substring(0, 200));
+        setError("Server error. Please try again or contact support.");
+        setLoading(false);
+        return;
+      }
       
       const data = await response.json();
       

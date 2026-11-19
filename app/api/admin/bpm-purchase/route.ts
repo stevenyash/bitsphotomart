@@ -1,14 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { hasPermission } from '@/lib/rbac';
 
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('services.requests');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - services.requests permission required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
+import { mediaManager, MediaFolder } from "@/lib/media-manager";
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,27 +39,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create videos directory if it doesn't exist
-    const videosDir = path.join(process.cwd(), "public", "uploads", "videos");
-    if (!existsSync(videosDir)) {
-      await mkdir(videosDir, { recursive: true });
-    }
-
-    // Generate unique filename
+    // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}${path.extname(file.name)}`;
-    const filepath = path.join(videosDir, filename);
 
-    // Save file
-    await writeFile(filepath, buffer);
+    // Determine folder
+    const folder: MediaFolder = 'videos/raw';
 
-    // Return the URL
-    const url = `/uploads/videos/${filename}`;
-    
+    // Upload to S3 with CloudFront delivery
+    const result = await mediaManager.upload(
+      buffer,
+      file.name,
+      file.type,
+      folder,
+      { userId: 'user-upload' }
+    );
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error || "Failed to upload video" },
+        { status: 500 }
+      );
+    }
+
+    // Return both S3 and CloudFront URLs
     return NextResponse.json({ 
-      url,
-      filename,
+      url: result.cloudFrontUrl,
+      s3Url: result.url,
+      key: result.key,
+      filename: file.name,
       size: file.size,
       type: file.type
     });

@@ -8,6 +8,9 @@ const protectedRoutes = [
   "/profile",
   "/orders",
   "/library",
+  "/cart",
+  "/checkout",
+  "/photo-editing",
 ];
 
 // Define admin-only routes
@@ -15,33 +18,56 @@ const adminRoutes = [
   "/admin",
 ];
 
-export default async function middleware(request: NextRequest) {
+// Define marketer-only routes
+const marketerRoutes = [
+  "/dashboard/marketer",
+];
+
+// Define auth routes that should redirect to dashboard if already logged in
+const authRoutes = [
+  "/login",
+  "/register", 
+];
+
+export async function middleware(request: NextRequest) {
   const session = await auth();
   const { pathname } = request.nextUrl;
+  
+  const isLoggedIn = !!session;
+  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
+  const isMarketerRoute = marketerRoutes.some(route => pathname.startsWith(route));
+
+  // Redirect to dashboard if already logged in and accessing auth pages
+  if (isAuthRoute && isLoggedIn) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   // Check if route is protected
-  const isProtectedRoute = protectedRoutes.some((route) => 
-    pathname.startsWith(route)
-  );
-
-  // Check if route is admin-only
-  const isAdminRoute = adminRoutes.some((route) => 
-    pathname.startsWith(route)
-  );
-
-  // Redirect to login if accessing protected route without session
   if (isProtectedRoute && !session) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect to dashboard if admin route without admin role
+  // Check if route is admin-only
   if (isAdminRoute && session) {
     const userRole = (session.user as { role?: string })?.role;
     
-    if (userRole !== "ADMIN") {
-      // Redirect to dashboard if not admin
+    // Allow only valid admin roles to access admin routes (NOT Marketer)
+    const validAdminRoles = ["ADMIN", "SUPERADMIN", "MANAGER", "FINANCE_MANAGER"];
+    
+    if (!userRole || !validAdminRoles.includes(userRole)) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
+  // Check if route is marketer-only
+  if (isMarketerRoute && session) {
+    const userRole = (session.user as { role?: string })?.role;
+    
+    if (userRole !== "MARKETER") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
@@ -52,14 +78,6 @@ export default async function middleware(request: NextRequest) {
 // Configure which routes the middleware runs on
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - api/auth (auth endpoints)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|public|api/auth).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };

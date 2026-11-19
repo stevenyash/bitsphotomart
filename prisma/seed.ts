@@ -1,13 +1,14 @@
 import "dotenv/config";
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import { PrismaClient } from '../src/lib/generated/prisma/client';
+import { PrismaClient, BlogStatus } from '../src/lib/generated/prisma/client';
 
 const adapter = new PrismaMariaDb({
   host: process.env.DATABASE_HOST || 'localhost',
   user: process.env.DATABASE_USER || 'root',
   password: process.env.DATABASE_PASSWORD || '',
   database: process.env.DATABASE_NAME || 'bitsphotomart',
-  connectionLimit: 5
+  port: parseInt(process.env.DATABASE_PORT || '3306', 10),
+  connectionLimit: 20
 });
 
 const prisma = new PrismaClient({ adapter });
@@ -319,6 +320,248 @@ async function main() {
   });
 
   console.log('✅ BPM Services seeded successfully!')
+
+  // Seed Blog Posts
+  const blogPosts = [
+    {
+      title: 'Welcome to Bits Photo Mart',
+      slug: 'welcome-to-bits-photo-mart',
+      content: `Welcome to Bits Photo Mart, your premier destination for discovering and purchasing exceptional photography and videography. Our platform connects talented photographers with businesses and individuals seeking premium visual content.
+
+At Bits Photo Mart, we understand the power of visual storytelling. Whether you're looking for stunning stock photos, need a professional photographer for your event, or want to explore the world of documentary filmmaking, we've got you covered.
+
+Our network of verified photographers and videographers spans across Kenya, ensuring that you have access to quality creative services no matter where you are. From Nairobi to Mombasa, from Kisumu to Nakuru, our creative professionals are ready to bring your vision to life.
+
+What sets us apart:
+- Verified professionals
+- Nationwide coverage
+- Competitive pricing
+- Quality assurance
+- Easy booking process
+
+Join thousands of satisfied clients who have found their perfect creative partner through Bits Photo Mart.`,
+      excerpt: 'Discover the premier marketplace for high-quality photography and videography in Kenya.',
+      author: 'BPM Team',
+      status: BlogStatus.PUBLISHED,
+      publishedAt: new Date('2026-02-15'),
+    },
+    {
+      title: 'Top 10 Photography Tips for Beginners',
+      slug: 'photography-tips-beginners',
+      content: `Starting your photography journey? Here are our top 10 tips to help you capture better photos from day one.
+
+1. **Master the Exposure Triangle**
+   Understanding aperture, shutter speed, and ISO is fundamental. These three elements control how light enters your camera and affect your image's brightness and quality.
+
+2. **Use the Rule of Thirds**
+   Imagine your frame divided into a 3x3 grid. Place your subject along these lines or at their intersections for more dynamic compositions.
+
+3. **Lighting is Everything**
+   The golden hour (just after sunrise or before sunset) provides soft, warm light that's perfect for portraits and landscapes.
+
+4. **Keep Your Camera Steady**
+   Use a tripod or stabilize your camera against a solid surface. Shaky hands can ruin otherwise perfect shots.
+
+5. **Learn to See**
+   Train your eye to notice light, shadows, patterns, and compositions in everyday scenes.
+
+6. **Practice Daily**
+   The more you shoot, the better you become. Challenge yourself to take one great photo every day.
+
+7. **Study Others' Work**
+   Analyze photos you admire. What makes them work? Apply those lessons to your own photography.
+
+8. **Don't Fear Manual Mode**
+   While auto mode is convenient, shooting in manual gives you creative control.
+
+9. **Edit Your Photos**
+   Post-processing is part of the creative process. Learn basic editing in tools like Lightroom or Photoshop.
+
+10. **Join a Community**
+    Connect with other photographers for feedback, inspiration, and learning opportunities.
+
+Happy shooting!`,
+      excerpt: 'Learn the essential tips and tricks to improve your photography skills.',
+      author: 'John Kamau',
+      status: BlogStatus.PUBLISHED,
+      publishedAt: new Date('2026-02-10'),
+    },
+    {
+      title: 'The Rise of Drone Photography in Kenya',
+      slug: 'drone-photography-kenya',
+      content: `Drone photography has transformed the visual industry in Kenya, opening up new possibilities for filmmakers, photographers, and businesses alike.
+
+**From Hollywood to Kenyan Skies**
+What was once reserved for big-budget productions is now accessible to businesses and individuals across Kenya. Drone technology has become more affordable, and the results speak for themselves.
+
+**Applications Across Industries**
+- **Real Estate**: Aerial property shots showcase developments like never before
+- **Events**: Capture breathtaking wedding and corporate event footage
+- **Agriculture**: Monitor crops and assess land from above
+- **Construction**: Track project progress with regular aerial updates
+- **Tourism**: Showcase Kenya's stunning landscapes
+
+**Regulatory Framework**
+The Kenya Civil Aviation Authority has established guidelines for drone operations. All professional drone operators must be licensed, and there are designated no-fly zones near airports and government facilities.
+
+**The Future is Flying**
+As technology advances, we can expect even more sophisticated drones with better cameras, longer flight times, and enhanced AI capabilities. The sky truly is the limit!
+
+At Bits Photo Mart, we connect you with certified drone professionals across Kenya. Whether you need aerial photography for your business or want to capture special moments from a unique perspective, our network of drone experts is ready to help.`,
+      excerpt: 'Explore how drone photography is transforming the visual industry.',
+      author: 'Sarah Ochieng',
+      status: BlogStatus.PUBLISHED,
+      publishedAt: new Date('2026-02-05'),
+    },
+    {
+      title: 'Behind the Scenes: Event Photography',
+      slug: 'behind-scenes-event-photography',
+      content: `Ever wondered what goes into capturing the perfect event? Let us take you behind the scenes of a professional event photography shoot.
+
+**Preparation is Key**
+Before the event, we scout the venue, check lighting conditions, and plan our shots. We discuss the schedule with the event organizer to ensure we capture all important moments.
+
+**Equipment Check**
+Professional event photographers carry multiple cameras, various lenses (wide for group shots, telephoto for candid moments), flash units, and spare batteries and memory cards.
+
+**The Day of the Event**
+- **Arrival**: We arrive early to set up and test lighting
+- **Key Moments**: We position ourselves strategically for speeches, cake cutting, and other important events
+- **Candid Shots**: We blend in with guests to capture natural, unposed moments
+- **Group Photos**: We coordinate and direct formal group shots efficiently
+
+**Post-Production**
+After the event, thousands of photos undergo careful selection and editing. Each image is color-corrected, and the best shots are enhanced for delivery.
+
+**Delivery**
+Within days, clients receive their professionally edited gallery, ready to share and treasure.
+
+At Bits Photo Mart, our event photographers bring years of experience and professional equipment to make your event memories last forever.`,
+      excerpt: 'What happens during a professional event photography shoot.',
+      author: 'Mike Wanjala',
+      status: BlogStatus.PUBLISHED,
+      publishedAt: new Date('2026-01-28'),
+    },
+    {
+      title: 'Why Professional Photo Editing Matters',
+      slug: 'why-professional-photo-editing-matters',
+      content: `In today's visual-first world, professional photo editing can make the difference between an average image and a stunning one.
+
+**The Magic of Post-Processing**
+Professional photo editing goes beyond simple filters. It's about enhancing the original vision while maintaining authenticity.
+
+**What Professional Editing Includes**:
+- **Color Correction**: Ensuring accurate, vibrant colors
+- **Exposure Adjustment**: Balancing highlights and shadows
+- **Cropping and Composition**: Perfecting the frame
+- **Retouching**: Removing distractions and blemishes
+- **Noise Reduction**: Cleaning up low-light shots
+- **Sharpening**: Enhancing detail and clarity
+
+**Industry Applications**
+- **E-commerce**: Product photos that sell
+- **Corporate**: Professional headshots and marketing materials
+- **Events**: Enhancing precious memories
+- **Real Estate**: Making properties look their best
+
+**DIY vs Professional**
+While smartphone apps offer basic editing, professional editors bring expertise, professional-grade software, and an artistic eye that elevates your images.
+
+**Our Services**
+At Bits Photo Mart, we offer professional photo editing services to transform your images. Our team uses industry-standard tools to deliver stunning results.`,
+      excerpt: 'Discover the importance of professional photo editing for your images.',
+      author: 'Emily Nyongesa',
+      status: BlogStatus.PUBLISHED,
+      publishedAt: new Date('2026-01-20'),
+    },
+  ];
+
+  // Create blog posts
+  for (const post of blogPosts) {
+    await prisma.blogPost.upsert({
+      where: { slug: post.slug },
+      update: post,
+      create: post,
+    });
+  }
+
+  console.log('✅ Blog posts seeded successfully!')
+
+  // Seed Admin User
+  async function seedAdmin() {
+    const bcrypt = await import('bcryptjs');
+    
+    const adminPassword = await bcrypt.hash('admin123', 12);
+    const adminUser = await prisma.user.upsert({
+      where: { email: 'admin@bitsphotomart.com' },
+      update: {},
+      create: {
+        email: 'admin@bitsphotomart.com',
+        name: 'Admin User',
+        phone: '+254700000001',
+        password: adminPassword,
+        role: 'ADMIN',
+        isVerified: true,
+      },
+    });
+
+    // Create admin profile
+    await prisma.adminProfile.upsert({
+      where: { userId: adminUser.id },
+      update: {},
+      create: {
+        userId: adminUser.id,
+        department: 'Administration',
+        title: 'System Administrator',
+      },
+    });
+
+    console.log('✅ Admin user seeded successfully!');
+    console.log('   Email: admin@bitsphotomart.com');
+    console.log('   Password: admin123');
+  }
+
+  await seedAdmin();
+
+  // Seed Marketer
+  async function seedMarketer() {
+    const bcrypt = await import('bcryptjs');
+    
+    // Create a marketer user
+    const marketerPassword = await bcrypt.hash('marketer123', 12);
+    const marketerUser = await prisma.user.upsert({
+      where: { email: 'marketer@bitsphotomart.com' },
+      update: {},
+      create: {
+        email: 'marketer@bitsphotomart.com',
+        name: 'John Marketer',
+        phone: '+254700000000',
+        password: marketerPassword,
+        role: 'MARKETER',
+        isVerified: true,
+      },
+    });
+
+    // Create marketer profile
+    await prisma.marketerProfile.upsert({
+      where: { userId: marketerUser.id },
+      update: {},
+      create: {
+        userId: marketerUser.id,
+        department: 'Marketing',
+        title: 'Affiliate Partner',
+        commissionRate: 10,
+        targetSales: 50000,
+        status: 'ACTIVE',
+      },
+    });
+
+    console.log('✅ Marketer seeded successfully!');
+    console.log('   Email: marketer@bitsphotomart.com');
+    console.log('   Password: marketer123');
+  }
+
+  await seedMarketer();
 }
 
 main()

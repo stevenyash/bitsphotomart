@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { usePaymentSettings } from "@/hooks/use-payment-settings";
 import { 
   CreditCard, 
   Phone, 
@@ -33,12 +34,22 @@ export function PaymentModal({
   metadata,
   onSuccess,
 }: PaymentModalProps) {
+  const { settings: paymentSettings } = usePaymentSettings();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("MPESA");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [paymentId, setPaymentId] = useState("");
+
+  // Set default payment method based on enabled gateways
+  useEffect(() => {
+    if (paymentSettings.enable_mpesa) {
+      setPaymentMethod("MPESA");
+    } else if (paymentSettings.enable_stripe) {
+      setPaymentMethod("STRIPE");
+    }
+  }, [paymentSettings]);
 
   const formatPhoneNumber = (phone: string) => {
     const digits = phone.replace(/\D/g, '');
@@ -143,43 +154,52 @@ export function PaymentModal({
               Payment Method
             </label>
             <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("MPESA")}
-                className={`p-3 border rounded-lg flex flex-col items-center gap-1 transition ${
-                  paymentMethod === "MPESA" 
-                    ? 'border-blue-500 bg-blue-50 text-blue-600' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <Phone className="w-5 h-5" />
-                <span className="text-xs">M-Pesa</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("STRIPE")}
-                className={`p-3 border rounded-lg flex flex-col items-center gap-1 transition ${
-                  paymentMethod === "STRIPE" 
-                    ? 'border-blue-500 bg-blue-50 text-blue-600' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <CreditCard className="w-5 h-5" />
-                <span className="text-xs">Card</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("PAYPAL")}
-                className={`p-3 border rounded-lg flex flex-col items-center gap-1 transition ${
-                  paymentMethod === "PAYPAL" 
-                    ? 'border-blue-500 bg-blue-50 text-blue-600' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <CreditCard className="w-5 h-5" />
-                <span className="text-xs">PayPal</span>
-              </button>
+              {paymentSettings.enable_mpesa && (
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("MPESA")}
+                  className={`p-3 border rounded-lg flex flex-col items-center gap-1 transition ${
+                    paymentMethod === "MPESA" 
+                      ? 'border-blue-500 bg-blue-50 text-blue-600' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <Phone className="w-5 h-5" />
+                  <span className="text-xs">M-Pesa</span>
+                </button>
+              )}
+              {paymentSettings.enable_stripe && (
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("STRIPE")}
+                  className={`p-3 border rounded-lg flex flex-col items-center gap-1 transition ${
+                    paymentMethod === "STRIPE" 
+                      ? 'border-blue-500 bg-blue-50 text-blue-600' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <CreditCard className="w-5 h-5" />
+                  <span className="text-xs">Card</span>
+                </button>
+              )}
+              {paymentSettings.enable_stripe && (
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("PAYPAL")}
+                  className={`p-3 border rounded-lg flex flex-col items-center gap-1 transition ${
+                    paymentMethod === "PAYPAL" 
+                      ? 'border-blue-500 bg-blue-50 text-blue-600' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <CreditCard className="w-5 h-5" />
+                  <span className="text-xs">Paypal</span>
+                </button>
+              )}
             </div>
+            {!paymentSettings.enable_mpesa && !paymentSettings.enable_stripe && (
+              <p className="text-sm text-red-500 mt-2">No payment methods enabled. Please contact support.</p>
+            )}
           </div>
 
           {/* Phone Number Input (for M-Pesa) */}

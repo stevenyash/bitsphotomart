@@ -9,6 +9,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { Mail, Phone, MapPin, Send, Instagram, Facebook, Youtube, Twitter } from "lucide-react";
+import { ContactInfoDisplay } from "./contact-info-display";
 
 interface ContactFormProps {
   onSuccess?: (message: string) => void;
@@ -116,37 +117,7 @@ export function ContactForm({ onSuccess }: ContactFormProps) {
           </p>
         </div>
         
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Mail className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium">Email</p>
-              <p className="text-muted-foreground">info@bitsphotomart.com</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Phone className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium">Phone</p>
-              <p className="text-muted-foreground">+254 XXX XXX XXX</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <MapPin className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium">Location</p>
-              <p className="text-muted-foreground">Kitui, Kenya</p>
-            </div>
-          </div>
-        </div>
+        <ContactInfoDisplay />
         
         {/* Social Links */}
         <div className="pt-4">

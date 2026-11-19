@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { calculateFeeSplit } from "@/lib/settings";
+import { creditCommissionForOrder } from "@/lib/commission";
 
 /**
  * M-Pesa STK Push Callback
@@ -142,6 +143,9 @@ export async function POST(request: NextRequest) {
       await prisma.cartItem.deleteMany({
         where: { userId: order.userId },
       });
+
+      // Credit commission to marketer if user was referred
+      await creditCommissionForOrder(order.id);
 
       console.log(`Payment successful for order ${order.orderNumber}. Receipt: ${mpesaReceiptNumber}`);
 

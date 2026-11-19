@@ -1,4 +1,6 @@
-import { Camera, Film, Plane, Building2, ShoppingBag, GraduationCap, Home, Newspaper, Check, Clapperboard } from 'lucide-react';
+import { theme } from "@/lib/admin-theme";
+import Link from "next/link";
+import { Camera, Film, Plane, Building2, ShoppingBag, GraduationCap, Home, Newspaper, Check, Clapperboard, ArrowLeft } from 'lucide-react';
 
 export default function ServicesInfoPage() {
   const services = [
@@ -69,7 +71,15 @@ export default function ServicesInfoPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+      </div>
+
       {/* Hero */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">

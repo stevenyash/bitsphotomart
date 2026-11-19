@@ -2,13 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { Role } from '@/lib/generated/prisma';
+import { hasPermission } from '@/lib/rbac';
 
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Permission check for viewing messages
+    const hasAccess = await hasPermission('messages.view');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -20,11 +28,11 @@ export async function GET(req: NextRequest) {
         AND: [
           {
             OR: [
-              { name: { contains: search, mode: 'insensitive' } },
-              { email: { contains: search, mode: 'insensitive' } },
+              { name: { contains: search } },
+              { email: { contains: search } },
             ],
           },
-          ...(role ? [{ role: role as any }] : []),
+          ...(role ? [{ role: role as Role }] : []),
         ],
       },
       select: {

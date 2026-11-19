@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { hasPermission } from "@/lib/rbac";
 
 export async function GET(request: Request) {
   try {
@@ -10,9 +11,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('analytics.view');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - analytics.view permission required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

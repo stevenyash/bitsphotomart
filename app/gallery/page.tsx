@@ -3,9 +3,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PhotoCard } from "@/components/gallery/photo-card";
 import { AISearchWrapper } from "@/components/gallery/ai-search-wrapper";
+import { PricingDisplay } from "@/components/gallery/pricing-display";
 import { 
   Image as ImageIcon,
   Video,
+  ArrowLeft,
 } from "lucide-react";
 
 // Categories from brief
@@ -98,14 +100,22 @@ export default async function GalleryPage({
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-amber-50">
+    <div className="min-h-screen bg-background">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+      </div>
+
       {/* Hero/Header Section - From Brief */}
-      <section className="bg-white border-b border-gray-200 py-16">
+      <section className="bg-card border-b border-border py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             Authentic African Visuals, Ready to Use
           </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
             Discover thousands of high-quality African photos and videos curated from Kenya&apos;s 
             landscapes, cultures, cities, people, wildlife and everyday life.
           </p>
@@ -113,15 +123,15 @@ export default async function GalleryPage({
       </section>
 
       {/* Perfect For Section - From Brief */}
-      <section className="bg-white py-6 border-b">
+      <section className="bg-card py-6 border-b">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-gray-700 mr-2">Perfect For:</span>
+            <span className="text-sm font-medium text-foreground mr-2">Perfect For:</span>
             {PERFECT_FOR.map((tag) => (
               <Link
                 key={tag.id}
                 href={`/gallery?search=${tag.name}`}
-                className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium hover:bg-amber-200 transition-colors"
+                className="px-3 py-1 bg-accent text-accent-foreground rounded-full text-sm font-medium hover:bg-accent/80 transition-colors"
               >
                 {tag.name}
               </Link>
@@ -131,10 +141,10 @@ export default async function GalleryPage({
       </section>
 
       {/* Category Filters - From Brief */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="bg-card border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h1 className="text-2xl font-bold text-gray-900">Stock Library</h1>
+            <h1 className="text-2xl font-bold text-foreground">Stock Library</h1>
             
             {/* AI-Powered Search Bar */}
             <AISearchWrapper initialQuery={search} />
@@ -150,8 +160,8 @@ export default async function GalleryPage({
                   href={`/gallery?category=${cat.id}`}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
                   {cat.name}
@@ -160,7 +170,7 @@ export default async function GalleryPage({
             })}
             <Link
               href="/gallery/videos"
-              className="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200"
+              className="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-accent text-accent-foreground hover:bg-accent/80"
             >
               <Video className="inline-block h-4 w-4 mr-1" />
               Videos
@@ -169,33 +179,12 @@ export default async function GalleryPage({
         </div>
       </div>
 
-      {/* Pricing Display - From Brief */}
-      <section className="bg-slate-900 py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="bg-white/10 rounded-lg p-4">
-              <p className="text-amber-400 font-bold text-lg">HD Clips</p>
-              <p className="text-white">From KES1,000 – 3,000</p>
-            </div>
-            <div className="bg-white/10 rounded-lg p-4">
-              <p className="text-amber-400 font-bold text-lg">4K Clips</p>
-              <p className="text-white">From KES2,500 – 10,000</p>
-            </div>
-            <div className="bg-white/10 rounded-lg p-4">
-              <p className="text-amber-400 font-bold text-lg">Photos</p>
-              <p className="text-white">KES500 – 1,500</p>
-            </div>
-            <div className="bg-white/10 rounded-lg p-4">
-              <p className="text-amber-400 font-bold text-lg">Extended Licenses</p>
-              <p className="text-white">Request a quote</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Pricing Display - From Database */}
+      <PricingDisplay />
 
       {/* Results Count */}
       <div className="container mx-auto px-4 py-4">
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {photos.length} photo{photos.length !== 1 ? "s" : ""} found
           {category !== "all" && ` in ${CATEGORIES.find(c => c.id === category)?.name}`}
           {search && ` matching "${search}"`}
@@ -212,43 +201,48 @@ export default async function GalleryPage({
           </div>
         </div>
       ) : (
-        /* Empty State */
+        /* Empty State - Coming Soon */
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center">
-            <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              No photos found
+          <div className="text-center max-w-md mx-auto">
+            <ImageIcon className="h-16 w-16 text-muted mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Stock Library Coming Soon
             </h2>
-            <p className="text-gray-500 mb-6">
-              {search
-                ? `No results for "${search}". Try a different search term.`
-                : category !== "all"
-                ? "No photos in this category yet."
-                : "No photos available yet. Check back soon!"}
+            <p className="text-muted-foreground mb-6">
+              We&apos;re curating authentic African visuals for you. Our team is working on adding amazing photos. 
+              Contact our Admin to add photos: <br/>
+              <a href="mailto:admin@bitsphotomart.com" className="text-primary hover:underline font-medium">
+                admin@bitsphotomart.com
+              </a>
             </p>
-            <Link href="/gallery">
-              <Button className="bg-amber-600 hover:bg-amber-700">
-                View All Photos
-              </Button>
-            </Link>
+            {search && (
+              <p className="text-muted-foreground mb-4">
+                No results for &quot;{search}&quot;. Try a different search term.
+              </p>
+            )}
+            {!search && (
+              <p className="text-muted-foreground mb-4">
+                No photos in this category yet. Check back soon!
+              </p>
+            )}
           </div>
         </div>
       )}
 
       {/* Call to Action for Photographers */}
-      <div className="bg-gradient-to-r from-amber-500 to-yellow-500 py-12">
+      <div className="bg-primary py-12">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">
+          <h2 className="text-2xl font-bold text-primary-foreground mb-4">
             Are you a photographer?
           </h2>
-          <p className="text-white/90 mb-6 max-w-2xl mx-auto">
+          <p className="text-primary-foreground/90 mb-6 max-w-2xl mx-auto">
             Join our community of photographers and start selling your photos today.
             Upload your best shots and earn money from every download.
           </p>
           <Link href="/for-creatives">
             <Button
               size="lg"
-              className="bg-white text-amber-700 hover:bg-gray-100"
+              className="bg-card text-foreground hover:bg-card/90"
             >
               Become a Photographer
             </Button>

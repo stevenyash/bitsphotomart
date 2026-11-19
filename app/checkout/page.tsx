@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { theme } from "@/lib/admin-theme";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { usePaymentSettings } from "@/hooks/use-payment-settings";
 import { 
   ArrowLeft, 
   CreditCard, 
@@ -42,6 +44,7 @@ interface PaymentMethodOption {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { settings: paymentSettings } = usePaymentSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -62,6 +65,15 @@ export default function CheckoutPage() {
     fetchCartItems();
     fetchUserProfile();
   }, []);
+
+  // Set default payment method based on enabled gateways
+  useEffect(() => {
+    if (paymentSettings.enable_mpesa) {
+      setPaymentMethod("MPESA");
+    } else if (paymentSettings.enable_stripe) {
+      setPaymentMethod("STRIPE");
+    }
+  }, [paymentSettings]);
 
   const fetchUserProfile = async () => {
     try {
@@ -259,8 +271,8 @@ export default function CheckoutPage() {
     setPromoError("");
   };
 
-  // Payment methods available
-  const paymentMethods: PaymentMethodOption[] = [
+  // Payment methods available - dynamic based on admin settings
+  const allPaymentMethods: PaymentMethodOption[] = [
     {
       id: "MPESA",
       name: "M-Pesa",
@@ -293,9 +305,17 @@ export default function CheckoutPage() {
     }
   ];
 
+  // Filter payment methods based on admin settings
+  const paymentMethods = allPaymentMethods.filter(method => {
+    if (method.id === "MPESA") return paymentSettings.enable_mpesa;
+    if (method.id === "STRIPE") return paymentSettings.enable_stripe;
+    if (method.id === "PAYPAL") return paymentSettings.enable_stripe; // PayPal uses Stripe
+    return true;
+  });
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
             <CreditCard className="w-8 h-8 text-white" />
@@ -308,9 +328,9 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0 && !success) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-[var(--background)]">
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="max-w-md mx-auto bg-[var(--card)] rounded-2xl shadow-lg p-8 text-center">
             <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <ShoppingBag className="w-10 h-10 text-gray-400" />
             </div>
@@ -329,9 +349,65 @@ export default function CheckoutPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-[var(--background)]">
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-lg mx-auto bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="max-w-lg mx-auto bg-[var(--card)] rounded-2xl shadow-lg p-8 text-center">
+            <div className="bg-green-50 -mx-8 -mt-8 px-8 py-6 mb-6 rounded-t-2xl">
+              <div className="w-20 h-20 bg-green-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                <Check className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
+            <p className="text-gray-600 mb-6">Your order has been confirmed.</p>
+            <div className="bg-gray-50 rounded-xl p-4 mb-6">
+              <p className="text-sm text-gray-500">Order Number</p>
+              <p className="text-2xl font-bold text-gray-900">{orderNumber}</p>
+            </div>
+            <p className="text-sm text-gray-500 mb-8">A confirmation email has been sent to you.</p>
+            <div className="space-y-3">
+              <Link href="/dashboard/orders" className="block">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl">
+                  View My Orders
+                </Button>
+              </Link>
+              <Link href="/gallery" className="block">
+                <Button variant="outline" className="w-full border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-semibold py-3 rounded-xl">
+                  Continue Shopping
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (cartItems.length === 0 && !success) {
+    return (
+      <div className="min-h-screen bg-[var(--background)]">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto bg-[var(--card)] rounded-2xl shadow-lg p-8 text-center">
+            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <ShoppingBag className="w-10 h-10 text-gray-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Your cart is empty</h2>
+            <p className="text-gray-500 mb-8">Browse our collection to find photos you love!</p>
+            <Link href="/gallery">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg">
+                Browse Photos
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-[var(--background)]">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-lg mx-auto bg-[var(--card)] rounded-2xl shadow-lg p-8 text-center">
             <div className="bg-green-50 -mx-8 -mt-8 px-8 py-6 mb-6 rounded-t-2xl">
               <div className="w-20 h-20 bg-green-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                 <Check className="w-10 h-10 text-white" />

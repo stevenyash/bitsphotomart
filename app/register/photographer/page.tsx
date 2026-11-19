@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Camera, Loader2 } from "lucide-react";
 
 export default function PhotographerRegisterPage() {
   const router = useRouter();
@@ -56,45 +57,49 @@ export default function PhotographerRegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-yellow-50">
-        <div className="max-w-md w-full mx-4 p-8 bg-white rounded-2xl shadow-xl text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
+        <div className="max-w-md w-full mx-4 p-8 bg-card border border-border rounded-lg shadow-xl text-center">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Submitted!</h2>
-          <p className="text-gray-600 mb-4">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Registration Submitted!</h2>
+          <p className="text-muted-foreground mb-4">
             Your photographer application has been submitted and is pending approval.
           </p>
-          <p className="text-sm text-amber-600">Redirecting to dashboard...</p>
+          <p className="text-sm text-primary">Redirecting to dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Become a <span className="text-amber-600">Photographer</span>
+          <Link href="/" className="inline-flex items-center gap-2">
+            <Camera className="h-10 w-10 text-primary" />
+            <span className="text-2xl font-bold text-foreground">Bits Photo Mart</span>
+          </Link>
+          <h1 className="text-4xl font-bold text-foreground mt-6 mb-2">
+            Become a <span className="text-primary">Photographer</span>
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Join Bits Photo Mart as a professional photographer and start selling your work
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-card border border-border rounded-lg shadow-xl p-8">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="bio" className="block text-sm font-medium text-foreground mb-2">
                 Bio / About You *
               </label>
               <textarea
@@ -104,13 +109,13 @@ export default function PhotographerRegisterPage() {
                 onChange={handleChange}
                 required
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-ring transition-colors bg-background text-foreground"
                 placeholder="Tell clients about your photography experience and style..."
               />
             </div>
 
             <div>
-              <label htmlFor="portfolio" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="portfolio" className="block text-sm font-medium text-foreground mb-2">
                 Portfolio URL
               </label>
               <Input
@@ -120,12 +125,13 @@ export default function PhotographerRegisterPage() {
                 value={formData.portfolio}
                 onChange={handleChange}
                 placeholder="https://yourportfolio.com"
+                className="bg-background text-foreground"
               />
             </div>
 
             <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                Location *
+              <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
+                Town & County *
               </label>
               <Input
                 id="location"
@@ -133,12 +139,13 @@ export default function PhotographerRegisterPage() {
                 value={formData.location}
                 onChange={handleChange}
                 required
-                placeholder="Nairobi, Kenya"
+                placeholder="e.g., Nairobi, Nairobi County"
+                className="bg-background text-foreground"
               />
             </div>
 
             <div>
-              <label htmlFor="skills" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="skills" className="block text-sm font-medium text-foreground mb-2">
                 Skills *
               </label>
               <Input
@@ -148,11 +155,12 @@ export default function PhotographerRegisterPage() {
                 onChange={handleChange}
                 required
                 placeholder="Wedding, Portrait, Product, Event..."
+                className="bg-background text-foreground"
               />
             </div>
 
             <div>
-              <label htmlFor="idNumber" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="idNumber" className="block text-sm font-medium text-foreground mb-2">
                 National ID Number (for verification)
               </label>
               <Input
@@ -161,8 +169,9 @@ export default function PhotographerRegisterPage() {
                 value={formData.idNumber}
                 onChange={handleChange}
                 placeholder="12345678"
+                className="bg-background text-foreground"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Your ID is only used for verification purposes
               </p>
             </div>
@@ -170,16 +179,23 @@ export default function PhotographerRegisterPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors disabled:opacity-50"
+              className="w-full"
             >
-              {loading ? "Submitting..." : "Submit Application"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Application"
+              )}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-amber-600 hover:text-amber-700 font-medium">
+              <Link href="/login" className="text-primary hover:text-primary/70 font-medium">
                 Sign in
               </Link>
             </p>
@@ -187,7 +203,7 @@ export default function PhotographerRegisterPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <Link href="/register" className="text-gray-600 hover:text-amber-600">
+          <Link href="/register" className="text-muted-foreground hover:text-primary">
             ← Back to regular registration
           </Link>
         </div>

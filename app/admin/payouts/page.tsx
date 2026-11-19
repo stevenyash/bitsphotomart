@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
+import { theme } from "@/lib/admin-theme";
+import {
   ArrowLeft,
   Loader2,
   DollarSign,
@@ -38,11 +40,11 @@ interface Payout {
   };
 }
 
-const statusColors: Record<string, { bg: string; text: string; icon: any }> = {
-  PENDING: { bg: "bg-yellow-100", text: "text-yellow-800", icon: Clock },
-  APPROVED: { bg: "bg-blue-100", text: "text-blue-800", icon: CheckCircle },
-  COMPLETED: { bg: "bg-green-100", text: "text-green-800", icon: CheckCircle },
-  REJECTED: { bg: "bg-red-100", text: "text-red-800", icon: XCircle },
+const statusColors: Record<string, { bg: string; text: string; icon: any; darkBg?: string; darkText?: string }> = {
+  PENDING: { bg: "bg-yellow-100", text: "text-yellow-800", icon: Clock, darkBg: "dark:bg-yellow-900", darkText: "dark:text-yellow-200" },
+  APPROVED: { bg: "bg-blue-100", text: "text-blue-800", icon: CheckCircle, darkBg: "dark:bg-blue-900", darkText: "dark:text-blue-200" },
+  COMPLETED: { bg: "bg-green-100", text: "text-green-800", icon: CheckCircle, darkBg: "dark:bg-green-900", darkText: "dark:text-green-200" },
+  REJECTED: { bg: "bg-red-100", text: "text-red-800", icon: XCircle, darkBg: "dark:bg-red-900", darkText: "dark:text-red-200" },
 };
 
 const statusOptions = ["PENDING", "APPROVED", "COMPLETED", "REJECTED"];
@@ -130,21 +132,21 @@ export default function AdminPayoutsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
-      <div className="bg-red-700 text-white shadow-lg">
+      <div className="bg-[var(--primary)] text-[var(--primary-foreground)] shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
               onClick={() => window.location.href = '/admin'}
-              className="text-white hover:bg-red-800"
+              className="text-[var(--primary-foreground)] hover:bg-[var(--primary)]/80"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Payout Management</h1>
-              <p className="text-red-100 text-lg">Manage photographer payout requests</p>
+              <h1 className="text-3xl font-bold text-[var(--primary-foreground)]">Payout Management</h1>
+              <p className="text-[var(--primary-foreground)]/80 text-lg">Manage photographer payout requests</p>
             </div>
           </div>
         </div>
@@ -153,25 +155,25 @@ export default function AdminPayoutsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-[var(--card)] rounded-lg shadow-sm p-6 border border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <div className="p-4 bg-yellow-100 rounded-xl">
-                <Clock className="h-8 w-8 text-yellow-600" />
+              <div className="p-4 bg-yellow-100 dark:bg-yellow-900 rounded-xl">
+                <Clock className="h-8 w-8 text-yellow-600 dark:text-yellow-300" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Pending Payouts</p>
-                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.totalPending)}</p>
+                <p className="text-sm text-[var(--muted-foreground)]">Pending Payouts</p>
+                <p className="text-3xl font-bold text-[var(--foreground)]">{formatCurrency(stats.totalPending)}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-[var(--card)] rounded-lg shadow-sm p-6 border border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <div className="p-4 bg-green-100 rounded-xl">
-                <DollarSign className="h-8 w-8 text-green-600" />
+              <div className="p-4 bg-green-100 dark:bg-green-900 rounded-xl">
+                <DollarSign className="h-8 w-8 text-green-600 dark:text-green-300" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total Paid</p>
-                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.totalPaid)}</p>
+                <p className="text-sm text-[var(--muted-foreground)]">Total Paid</p>
+                <p className="text-3xl font-bold text-[var(--foreground)]">{formatCurrency(stats.totalPaid)}</p>
               </div>
             </div>
           </div>
@@ -183,7 +185,7 @@ export default function AdminPayoutsPage() {
             <Button
               variant={filter === "" ? "default" : "outline"}
               onClick={() => { setFilter(""); setPagination({ ...pagination, page: 1 }); }}
-              className={filter === "" ? "bg-red-600 hover:bg-red-700" : ""}
+              className={filter === "" ? "bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)]" : ""}
             >
               All
             </Button>
@@ -192,7 +194,7 @@ export default function AdminPayoutsPage() {
                 key={status}
                 variant={filter === status ? "default" : "outline"}
                 onClick={() => { setFilter(status); setPagination({ ...pagination, page: 1 }); }}
-                className={filter === status ? "bg-red-600 hover:bg-red-700" : ""}
+                className={filter === status ? "bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)]" : ""}
               >
                 {status}
               </Button>
@@ -203,13 +205,13 @@ export default function AdminPayoutsPage() {
         {/* Payouts List */}
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : payouts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <DollarSign className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No payout requests found</h3>
-            <p className="text-gray-600">
+          <div className={`${theme.cardStyle} p-12 text-center`}>
+            <DollarSign className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className={`text-lg font-semibold ${theme.heading} mb-2`}>No payout requests found</h3>
+            <p className={theme.mutedText}>
               {filter ? "Try a different filter." : "No payout requests in the system yet."}
             </p>
           </div>
@@ -222,20 +224,20 @@ export default function AdminPayoutsPage() {
               return (
                 <div 
                   key={payout.id} 
-                  className="bg-white rounded-xl shadow-md border border-gray-100 p-6"
+                  className={`${theme.cardStyle} p-6`}
                 >
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     {/* Payout Info */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="font-mono text-sm text-gray-500">#{payout.id.slice(-8).toUpperCase()}</span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
+                        <span className={`font-mono text-sm ${theme.mutedText}`}>#{payout.id.slice(-8).toUpperCase()}</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.darkBg || ''} ${statusStyle.text} ${statusStyle.darkText || ''}`}>
                           <StatusIcon className="h-3 w-3 inline mr-1" />
                           {payout.status}
                         </span>
                       </div>
                       
-                      <div className="text-sm text-gray-600 space-y-1">
+                      <div className={`text-sm ${theme.mutedText} space-y-1`}>
                         <p className="flex items-center gap-2">
                           <User className="h-4 w-4" />
                           <span className="font-medium">{payout.photographer.user.name || "N/A"}</span>
@@ -259,14 +261,14 @@ export default function AdminPayoutsPage() {
                           Method: {payout.paymentMethod}
                         </p>
                         {payout.transactionId && (
-                          <p className="text-xs text-gray-500">Transaction: {payout.transactionId}</p>
+                          <p className={`text-xs ${theme.mutedText}`}>Transaction: {payout.transactionId}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Amount */}
                     <div className="text-center md:text-right">
-                      <p className="text-3xl font-bold text-gray-900">
+                      <p className={`text-3xl font-bold ${theme.heading}`}>
                         {formatCurrency(payout.amount)}
                       </p>
                     </div>
@@ -276,7 +278,7 @@ export default function AdminPayoutsPage() {
                       <Button
                         variant="outline"
                         onClick={() => setSelectedPayout(payout)}
-                        className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                        className="text-primary border-primary hover:bg-primary/10"
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         Review
@@ -288,7 +290,7 @@ export default function AdminPayoutsPage() {
                             variant="outline"
                             onClick={() => handleProcessPayout(payout.id, "APPROVE")}
                             disabled={processingId === payout.id}
-                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            className="text-green-600 dark:text-green-400 border-green-600 dark:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
                           >
                             {processingId === payout.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -303,7 +305,7 @@ export default function AdminPayoutsPage() {
                             variant="outline"
                             onClick={() => handleProcessPayout(payout.id, "REJECT")}
                             disabled={processingId === payout.id}
-                            className="text-red-600 border-red-600 hover:bg-red-50"
+                            className="text-red-600 dark:text-red-400 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                           >
                             {processingId === payout.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -345,7 +347,7 @@ export default function AdminPayoutsPage() {
             >
               Previous
             </Button>
-            <span className="flex items-center px-4 text-sm text-gray-600">
+            <span className={`flex items-center px-4 text-sm ${theme.mutedText}`}>
               Page {pagination.page} of {pagination.pages}
             </span>
             <Button
@@ -361,13 +363,13 @@ export default function AdminPayoutsPage() {
 
       {/* Payout Details Modal */}
       {selectedPayout && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className={`${theme.cardStyle} shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto`}>
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Payout Request</h2>
-                  <p className="text-sm text-gray-500">#{selectedPayout.id.slice(-8).toUpperCase()}</p>
+                  <h2 className={`text-2xl font-bold ${theme.heading}`}>Payout Request</h2>
+                  <p className={`text-sm ${theme.mutedText}`}>#{selectedPayout.id.slice(-8).toUpperCase()}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -379,34 +381,34 @@ export default function AdminPayoutsPage() {
 
               {/* Payout Info */}
               <div className="space-y-4 mb-6">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">Amount</p>
-                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(selectedPayout.amount)}</p>
+                <div className={`p-4 ${theme.secondary} rounded-lg`}>
+                  <p className={`text-sm ${theme.mutedText}`}>Amount</p>
+                  <p className={`text-2xl font-bold ${theme.heading}`}>{formatCurrency(selectedPayout.amount)}</p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500">Photographer</p>
-                  <p className="font-medium">{selectedPayout.photographer.user.name || "N/A"}</p>
-                  <p className="text-sm text-gray-600">{selectedPayout.photographer.user.email}</p>
+                  <p className={`text-sm ${theme.mutedText}`}>Photographer</p>
+                  <p className={`font-medium ${theme.heading}`}>{selectedPayout.photographer.user.name || "N/A"}</p>
+                  <p className={`text-sm ${theme.mutedText}`}>{selectedPayout.photographer.user.email}</p>
                   {selectedPayout.photographer.user.phone && (
-                    <p className="text-sm text-gray-600">{selectedPayout.photographer.user.phone}</p>
+                    <p className={`text-sm ${theme.mutedText}`}>{selectedPayout.photographer.user.phone}</p>
                   )}
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500">Payment Method</p>
-                  <p className="font-medium">{selectedPayout.paymentMethod}</p>
+                  <p className={`text-sm ${theme.mutedText}`}>Payment Method</p>
+                  <p className={`font-medium ${theme.heading}`}>{selectedPayout.paymentMethod}</p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500">Requested</p>
-                  <p className="font-medium">{formatDate(selectedPayout.createdAt)}</p>
+                  <p className={`text-sm ${theme.mutedText}`}>Requested</p>
+                  <p className={`font-medium ${theme.heading}`}>{formatDate(selectedPayout.createdAt)}</p>
                 </div>
 
                 {selectedPayout.notes && (
                   <div>
-                    <p className="text-sm text-gray-500">Notes</p>
-                    <p className="font-medium">{selectedPayout.notes}</p>
+                    <p className={`text-sm ${theme.mutedText}`}>Notes</p>
+                    <p className={`font-medium ${theme.heading}`}>{selectedPayout.notes}</p>
                   </div>
                 )}
               </div>
@@ -415,7 +417,7 @@ export default function AdminPayoutsPage() {
               {selectedPayout.status === "PENDING" && (
                 <div className="space-y-4 border-t pt-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium ${theme.body} mb-2`}>
                       Notes (Optional)
                     </label>
                     <Input
@@ -456,7 +458,7 @@ export default function AdminPayoutsPage() {
               {selectedPayout.status === "APPROVED" && (
                 <div className="space-y-4 border-t pt-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium ${theme.body} mb-2`}>
                       Transaction ID
                     </label>
                     <Input

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PhotoUploadForm } from "./photo-upload-form";
+import { theme } from "@/lib/admin-theme";
 
 export default async function UploadPage() {
   const session = await auth();
@@ -31,14 +32,14 @@ export default async function UploadPage() {
   // Check if photographer is approved
   if (user.photographer.status !== "APPROVED") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+      <div className="min-h-screen bg-[var(--background)]">
         <div className="container mx-auto px-4 py-8">
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-8 text-center">
-            <h2 className="text-xl font-semibold text-white mb-2">Account Pending Approval</h2>
-            <p className="text-slate-400 mb-4">
+            <h2 className="text-xl font-semibold text-[var(--foreground)] mb-2">Account Pending Approval</h2>
+            <p className="text-[var(--muted-foreground)] mb-4">
               Your photographer account is still pending approval. You will be able to upload photos once approved.
             </p>
-            <p className="text-slate-500 text-sm">
+            <p className="text-[var(--muted-foreground)] text-sm">
               Status: <span className="text-amber-400 capitalize">{user.photographer.status.toLowerCase()}</span>
             </p>
           </div>
@@ -48,11 +49,11 @@ export default async function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-      <div className="bg-slate-800 border-b border-slate-700">
+    <div className="min-h-screen bg-[var(--background)]">
+      <div className={`${theme.card} border-b border-[var(--border)]`}>
         <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-white">Upload Photos</h1>
-          <p className="text-slate-400">
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Upload Photos</h1>
+          <p className="text-[var(--muted-foreground)]">
             Add new photos to your portfolio
           </p>
         </div>

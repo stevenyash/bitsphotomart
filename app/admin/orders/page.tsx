@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { 
+import { theme } from "@/lib/admin-theme";
+import {
   ShoppingCart,
   ArrowLeft,
   Loader2,
@@ -130,21 +132,21 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
-      <div className="bg-red-700 text-white shadow-lg">
+      <div className="bg-[var(--primary)] text-[var(--primary-foreground)] shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
               onClick={() => window.location.href = '/admin'}
-              className="text-white hover:bg-red-800"
+              className="text-[var(--primary-foreground)] hover:bg-[var(--primary)]/80"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Order Management</h1>
-              <p className="text-red-100 text-lg">View and manage all orders</p>
+              <h1 className="text-3xl font-bold text-[var(--primary-foreground)]">Order Management</h1>
+              <p className="text-[var(--primary-foreground)]/80 text-lg">View and manage all orders</p>
             </div>
           </div>
         </div>
@@ -153,25 +155,25 @@ export default function AdminOrdersPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-[var(--card)] rounded-lg shadow-sm p-6 border border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <div className="p-4 bg-blue-100 rounded-xl">
-                <ShoppingCart className="h-8 w-8 text-blue-600" />
+              <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-xl">
+                <ShoppingCart className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total Orders</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalOrders}</p>
+                <p className="text-sm text-[var(--muted-foreground)]">Total Orders</p>
+                <p className="text-3xl font-bold text-[var(--foreground)]">{stats.totalOrders}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-[var(--card)] rounded-lg shadow-sm p-6 border border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <div className="p-4 bg-green-100 rounded-xl">
-                <DollarSign className="h-8 w-8 text-green-600" />
+              <div className="p-4 bg-green-100 dark:bg-green-900 rounded-xl">
+                <DollarSign className="h-8 w-8 text-green-600 dark:text-green-300" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total Revenue</p>
-                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.totalRevenue)}</p>
+                <p className="text-sm text-[var(--muted-foreground)]">Total Revenue</p>
+                <p className="text-3xl font-bold text-[var(--foreground)]">{formatCurrency(stats.totalRevenue)}</p>
               </div>
             </div>
           </div>
@@ -206,10 +208,10 @@ export default function AdminOrdersPage() {
             <Loader2 className="h-8 w-8 animate-spin text-red-600" />
           </div>
         ) : orders.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <div className={`${theme.cardStyle} p-12 text-center`}>
             <ShoppingCart className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders found</h3>
-            <p className="text-gray-600">
+            <h3 className={`text-lg font-semibold ${theme.heading} mb-2`}>No orders found</h3>
+            <p className={theme.mutedText}>
               {filter ? "Try a different filter." : "No orders in the system yet."}
             </p>
           </div>
@@ -222,24 +224,24 @@ export default function AdminOrdersPage() {
               return (
                 <div 
                   key={order.id} 
-                  className="bg-white rounded-xl shadow-md border border-gray-100 p-6"
+                  className={`${theme.cardStyle} p-6`}
                 >
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     {/* Order Info */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="font-mono text-sm text-gray-500">#{order.id.slice(-8).toUpperCase()}</span>
+                        <span className={`font-mono text-sm ${theme.mutedText}`}>#{order.id.slice(-8).toUpperCase()}</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
                           <StatusIcon className="h-3 w-3 inline mr-1" />
                           {order.status}
                         </span>
                       </div>
                       
-                      <div className="text-sm text-gray-600 space-y-1">
+                      <div className={`text-sm ${theme.mutedText} space-y-1`}>
                         <p><span className="font-medium">Customer:</span> {order.user.name || "N/A"} ({order.user.email})</p>
                         <p><span className="font-medium">Date:</span> {formatDate(order.createdAt)}</p>
                         <p><span className="font-medium">Items:</span> {order.items.length} item(s)</p>
-                        <p className="text-lg font-bold text-gray-900">
+                        <p className={`text-lg font-bold ${theme.heading}`}>
                           Total: {formatCurrency(order.totalAmount)}
                         </p>
                       </div>
@@ -250,7 +252,7 @@ export default function AdminOrdersPage() {
                       <Button
                         variant="outline"
                         onClick={() => setSelectedOrder(order)}
-                        className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                        className="text-primary border-primary hover:bg-primary/10"
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         View Details
@@ -345,7 +347,7 @@ export default function AdminOrdersPage() {
             >
               Previous
             </Button>
-            <span className="flex items-center px-4 text-sm text-gray-600">
+            <span className={`flex items-center px-4 text-sm ${theme.mutedText}`}>
               Page {pagination.page} of {pagination.pages}
             </span>
             <Button
@@ -362,12 +364,12 @@ export default function AdminOrdersPage() {
       {/* Order Details Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className={`${theme.cardStyle} shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto`}>
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
-                  <p className="text-sm text-gray-500">Order #{selectedOrder.id.slice(-8).toUpperCase()}</p>
+                  <h2 className={`text-2xl font-bold ${theme.heading}`}>Order Details</h2>
+                  <p className={`text-sm ${theme.mutedText}`}>Order #{selectedOrder.id.slice(-8).toUpperCase()}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -379,7 +381,7 @@ export default function AdminOrdersPage() {
 
               {/* Status Update */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme.body} mb-2`}>
                   Update Status
                 </label>
                 <div className="flex gap-2 flex-wrap">
@@ -401,23 +403,23 @@ export default function AdminOrdersPage() {
               {/* Order Info */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <p className="text-sm text-gray-500">Customer</p>
+                  <p className={`text-sm ${theme.mutedText}`}>Customer</p>
                   <p className="font-medium">{selectedOrder.user.name || "N/A"}</p>
-                  <p className="text-sm text-gray-600">{selectedOrder.user.email}</p>
+                  <p className={`text-sm ${theme.mutedText}`}>{selectedOrder.user.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Date</p>
+                  <p className={`text-sm ${theme.mutedText}`}>Date</p>
                   <p className="font-medium">{formatDate(selectedOrder.createdAt)}</p>
                 </div>
               </div>
 
               {/* Items */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-4">Order Items</h3>
+                <h3 className={`font-semibold ${theme.heading} mb-4`}>Order Items</h3>
                 <div className="space-y-4">
                   {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex gap-4 p-4 bg-gray-50 rounded-lg">
-                      <div className="w-20 h-20 relative flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden">
+                    <div key={item.id} className={`flex gap-4 p-4 ${theme.secondary} rounded-lg`}>
+                      <div className={`w-20 h-20 relative flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden`}>
                         {item.photo.imageUrl ? (
                           <img
                             src={item.photo.imageUrl}
@@ -431,12 +433,12 @@ export default function AdminOrdersPage() {
                         )}
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">{item.photo.title}</p>
-                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                        <p className="text-sm text-gray-600">{formatCurrency(item.price)} each</p>
+                        <p className={`font-medium ${theme.heading}`}>{item.photo.title}</p>
+                        <p className={`text-sm ${theme.mutedText}`}>Qty: {item.quantity}</p>
+                        <p className={`text-sm ${theme.mutedText}`}>{formatCurrency(item.price)} each</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gray-900">{formatCurrency(item.price * item.quantity)}</p>
+                        <p className={`font-bold ${theme.heading}`}>{formatCurrency(item.price * item.quantity)}</p>
                       </div>
                     </div>
                   ))}
@@ -444,10 +446,10 @@ export default function AdminOrdersPage() {
               </div>
 
               {/* Total */}
-              <div className="mt-6 pt-6 border-t">
+              <div className={`mt-6 pt-6 border-t ${theme.border}`}>
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-medium text-gray-700">Total</span>
-                  <span className="text-2xl font-bold text-gray-900">
+                  <span className={`text-lg font-medium ${theme.body}`}>Total</span>
+                  <span className={`text-2xl font-bold ${theme.heading}`}>
                     {formatCurrency(selectedOrder.totalAmount)}
                   </span>
                 </div>

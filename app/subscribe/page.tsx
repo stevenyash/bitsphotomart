@@ -1,5 +1,6 @@
 'use client';
 
+import { theme } from "@/lib/admin-theme";
 import { useState, useEffect } from 'react';
 
 interface SubscriptionPlan {
@@ -35,7 +36,7 @@ export default function SubscribePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4">
+    <div className="min-h-screen bg-[var(--background)] py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Plan</h1>

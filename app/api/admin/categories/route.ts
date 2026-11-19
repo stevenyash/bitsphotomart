@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { hasPermission } from "@/lib/rbac";
 
 // GET - Get all categories
 export async function GET(request: Request) {
@@ -11,9 +13,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('content.categories.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - content.categories.manage permission required' }, { status: 403 });
     }
 
     const categories = await prisma.category.findMany({
@@ -46,9 +49,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('content.categories.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - content.categories.manage permission required' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -93,9 +97,10 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('content.categories.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - content.categories.manage permission required' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -133,9 +138,10 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('content.categories.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - content.categories.manage permission required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

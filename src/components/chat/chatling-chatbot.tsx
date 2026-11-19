@@ -2,56 +2,68 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-// Predefined responses for the chatbot
-const botResponses: Record<string, string> = {
-  'hello': 'Hello! 👋 Welcome to Bits Photo Mart. How can I help you today?',
-  'hi': 'Hi there! 👋 How can I assist you with our photography services?',
-  'hey': 'Hey! 👋 What can I help you with today?',
-  'buy': 'To purchase photos, browse our gallery at /gallery, add items to cart, and checkout. We accept M-Pesa, Stripe, and PayPal.',
-  'purchase': 'To purchase photos, browse our gallery at /gallery, add items to cart, and checkout. We accept M-Pesa, Stripe, and PayPal.',
-  'photo': 'We have thousands of high-quality photos! Visit /gallery to browse by category or use our search feature.',
-  'photos': 'We have thousands of high-quality photos! Visit /gallery to browse by category or use our search feature.',
-  'price': 'Photo prices vary based on license type. Visit any photo detail page to see pricing options.',
-  'pricing': 'Photo prices vary based on license type. Visit any photo detail page to see pricing options.',
-  'license': 'We offer Personal, Commercial, and Extended licenses. Each has different usage rights and pricing.',
-  'sell': 'Photographers can sell on BPM! Register as a photographer at /register/photographer, then upload your photos for review.',
-  'upload': 'Photographers can upload photos from their dashboard at /photographer/upload after registering.',
-  'photographer': 'To become a photographer, register at /register/photographer. You can then upload photos and earn from sales.',
-  'mpesa': 'We accept M-Pesa payments via Lipa Na M-Pesa. Select M-Pesa at checkout and follow the prompts.',
-  'payment': 'We accept M-Pesa, Credit Cards (Stripe), and PayPal. Select your preferred method at checkout.',
-  'download': 'After purchase, download your photos from /dashboard/orders. Licensed photos are available for download.',
-  'refund': 'For refund inquiries, please contact our support team at support@bitsphotomart.com',
-  'support': 'You can reach our support team at support@bitsphotomart.com or use the contact form.',
-  'contact': 'You can reach our support team at support@bitsphotomart.com or use the contact form.',
-  'help': 'I can help with: finding photos, pricing, payments, photographer registration, and order issues. What do you need?',
-  'default': "I'm here to help! Ask me about finding photos, pricing, payments, or becoming a photographer. You can also email support@bitsphotomart.com for detailed assistance."
-};
-
-interface Message {
-  id: number;
-  text: string;
-  isUser: boolean;
-}
-
-function getBotResponse(message: string): string {
-  const lowerMessage = message.toLowerCase();
-  
-  for (const [key, response] of Object.entries(botResponses)) {
-    if (lowerMessage.includes(key)) {
-      return response;
-    }
-  }
-  
-  return botResponses['default'];
+interface ContactInfo {
+  platform_email: string;
+  platform_phone: string;
+  platform_address: string;
 }
 
 export default function ChatlingChatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<{id: number; text: string; isUser: boolean}[]>([
     { id: 0, text: "Hello! 👋 I'm your BPM Assistant. How can I help you today?", isUser: false }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch('/api/pricing/contact')
+      .then(res => res.json())
+      .then(data => {
+        if (data.platform_email) {
+          setContactInfo(data);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const getBotResponse = (message: string): string => {
+    const lowerMessage = message.toLowerCase();
+    const supportEmail = contactInfo?.platform_email || 'support@bitsphotomart.com';
+    
+    const responses: Record<string, string> = {
+      'hello': 'Hello! 👋 Welcome to Bits Photo Mart. How can I help you today?',
+      'hi': 'Hi there! 👋 How can I assist you with our photography services?',
+      'hey': 'Hey! 👋 What can I help you with today?',
+      'buy': 'To purchase photos, browse our gallery at /gallery, add items to cart, and checkout. We accept M-Pesa, Stripe, and PayPal.',
+      'purchase': 'To purchase photos, browse our gallery at /gallery, add items to cart, and checkout. We accept M-Pesa, Stripe, and PayPal.',
+      'photo': 'We have thousands of high-quality photos! Visit /gallery to browse by category or use our search feature.',
+      'photos': 'We have thousands of high-quality photos! Visit /gallery to browse by category or use our search feature.',
+      'price': 'Photo prices vary based on license type. Visit any photo detail page to see pricing options.',
+      'pricing': 'Photo prices vary based on license type. Visit any photo detail page to see pricing options.',
+      'license': 'We offer Personal, Commercial, and Extended licenses. Each has different usage rights and pricing.',
+      'sell': 'Photographers can sell on BPM! Register as a photographer at /register/photographer, then upload your photos for review.',
+      'upload': 'Photographers can upload photos from their dashboard at /photographer/upload after registering.',
+      'photographer': 'To become a photographer, register at /register/photographer. You can then upload photos and earn from sales.',
+      'mpesa': 'We accept M-Pesa payments via Lipa Na M-Pesa. Select M-Pesa at checkout and follow the prompts.',
+      'payment': 'We accept M-Pesa, Credit Cards (Stripe), and PayPal. Select your preferred method at checkout.',
+      'download': 'After purchase, download your photos from /dashboard/orders. Licensed photos are available for download.',
+      'refund': `For refund inquiries, please contact our support team at ${supportEmail}`,
+      'support': `You can reach our support team at ${supportEmail} or use the contact form.`,
+      'contact': `You can reach our support team at ${supportEmail} or use the contact form.`,
+      'help': 'I can help with: finding photos, pricing, payments, photographer registration, and order issues. What do you need?',
+      'default': `I'm here to help! Ask me about finding photos, pricing, payments, or becoming a photographer. You can also email ${supportEmail} for detailed assistance.`
+    };
+    
+    for (const [key, response] of Object.entries(responses)) {
+      if (lowerMessage.includes(key)) {
+        return response;
+      }
+    }
+    
+    return responses['default'];
+  };
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
@@ -61,7 +73,7 @@ export default function ChatlingChatbot() {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    const userMessage: Message = {
+    const userMessage: { id: number; text: string; isUser: boolean } = {
       id: Date.now(),
       text: inputValue,
       isUser: true
@@ -69,9 +81,8 @@ export default function ChatlingChatbot() {
 
     setMessages(prev => [...prev, userMessage]);
     
-    // Simulate bot response
     setTimeout(() => {
-      const botResponse: Message = {
+      const botResponse: { id: number; text: string; isUser: boolean } = {
         id: Date.now() + 1,
         text: getBotResponse(inputValue),
         isUser: false
@@ -88,7 +99,6 @@ export default function ChatlingChatbot() {
 
   return (
     <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 9999 }}>
-      {/* Chat Window */}
       {isOpen && (
         <div
           style={{ 
@@ -106,7 +116,6 @@ export default function ChatlingChatbot() {
             overflow: 'hidden'
           }}
         >
-          {/* Header */}
           <div style={{ 
             backgroundColor: '#2563eb', 
             color: 'white', 
@@ -145,7 +154,6 @@ export default function ChatlingChatbot() {
             </button>
           </div>
 
-          {/* Messages */}
           <div style={{ 
             flex: 1, 
             padding: '16px', 
@@ -182,7 +190,6 @@ export default function ChatlingChatbot() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
           <div style={{ 
             padding: '12px', 
             borderTop: '1px solid #e5e7eb',
@@ -204,7 +211,8 @@ export default function ChatlingChatbot() {
                   borderRadius: '24px',
                   fontSize: '14px',
                   outline: 'none',
-                  backgroundColor: '#f9fafb'
+                  backgroundColor: '#ffffff',
+                  color: '#1f2937'
                 }}
               />
               <button
@@ -232,7 +240,6 @@ export default function ChatlingChatbot() {
         </div>
       )}
 
-      {/* Chat Toggle Button */}
       <button
         onClick={toggleChat}
         style={{ 

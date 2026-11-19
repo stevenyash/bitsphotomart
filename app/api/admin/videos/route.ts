@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { hasPermission } from "@/lib/rbac";
 
 // GET - Get all videos (admin view)
 export async function GET(request: NextRequest) {
@@ -12,14 +13,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { role: true },
-    });
-
-    if (user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('content.videos.view');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - content.videos.view permission required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -102,14 +99,10 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { role: true },
-    });
-
-    if (user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('content.videos.approve');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - content.videos.approve permission required' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -160,14 +153,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { role: true },
-    });
-
-    if (user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('content.videos.delete');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - content.videos.delete permission required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

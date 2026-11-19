@@ -1,5 +1,6 @@
 'use client';
 
+import { theme } from "@/lib/admin-theme";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plane, Rocket, Clapperboard } from 'lucide-react';
@@ -217,14 +218,14 @@ export default function DroneServicesPage() {
 
   if (optionsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-[var(--background)] py-12">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Drone & Aerial Services</h1>

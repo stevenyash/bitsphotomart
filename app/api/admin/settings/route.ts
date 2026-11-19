@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { hasPermission } from '@/lib/rbac';
 
 // GET /api/admin/settings - Get all settings
 export async function GET(req: NextRequest) {
@@ -11,8 +12,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== 'ADMIN') {
+    // Check permission using RBAC - settings.platform permission required
+    const hasAccess = await hasPermission('settings.platform');
+    if (!hasAccess) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -45,17 +47,22 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== 'ADMIN') {
+    // Check permission using RBAC - settings.platform permission required
+    const hasAccess = await hasPermission('settings.platform');
+    if (!hasAccess) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await req.json();
-    const { key, value, description } = body;
+    let { key, value, description } = body;
 
     if (!key || value === undefined) {
       return NextResponse.json({ error: 'Key and value are required' }, { status: 400 });
     }
+
+    // Ensure value is always a string
+    value = String(value);
+    if (description) description = String(description);
 
     const setting = await prisma.setting.upsert({
       where: { key },

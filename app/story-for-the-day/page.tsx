@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { theme } from "@/lib/admin-theme";
 
 export const metadata: Metadata = {
   title: 'Story for the Day - Bits Photo Mart',
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function StoryForTheDayPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Hero Section */}
       <div className="bg-blue-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">

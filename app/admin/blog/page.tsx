@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { theme } from "@/lib/admin-theme";
 
 interface BlogPost {
   id: string;
@@ -146,22 +147,22 @@ export default function AdminBlogPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className={`min-h-screen ${theme.secondary} py-8 px-4`}>
       <div className="container mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Blog Management</h1>
-            <p className="text-gray-600">Create and manage blog posts</p>
+            <h1 className={`text-2xl font-bold ${theme.heading}`}>Blog Management</h1>
+            <p className={theme.mutedText}>Create and manage blog posts</p>
           </div>
           <button
             onClick={openNew}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -178,8 +179,8 @@ export default function AdminBlogPage() {
               onClick={() => setFilter(status)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === status 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  ? 'bg-primary text-primary-foreground' 
+                  : `${theme.card} ${theme.mutedText} hover:${theme.tableRowHover} border ${theme.border}`
               }`}
             >
               {status}
@@ -188,19 +189,19 @@ export default function AdminBlogPage() {
         </div>
 
         {/* Posts Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className={`${theme.card} rounded-lg shadow overflow-hidden`}>
+          <table className={`min-w-full divide-y ${theme.border}`}>
+            <thead className={theme.secondary}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Author</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Published</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Title</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Author</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Status</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Created</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Published</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className={`${theme.card} divide-y ${theme.border}`}>
               {posts.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
@@ -218,7 +219,7 @@ export default function AdminBlogPage() {
                           </div>
                         )}
                         <div>
-                          <p className="font-medium text-gray-900">{post.title}</p>
+                          <p className={`font-medium ${theme.heading}`}>{post.title}</p>
                           <p className="text-sm text-gray-500">/{post.slug}</p>
                         </div>
                       </div>
@@ -237,7 +238,7 @@ export default function AdminBlogPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => openEdit(post)}
-                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200"
+                          className="px-3 py-1 bg-primary/10 text-primary rounded text-sm hover:bg-primary/20"
                         >
                           Edit
                         </button>
@@ -270,7 +271,7 @@ export default function AdminBlogPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 my-8 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className={`text-lg font-bold ${theme.heading}`}>
                 {selectedPost ? 'Edit Post' : 'New Blog Post'}
               </h3>
             </div>
@@ -355,7 +356,7 @@ export default function AdminBlogPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : selectedPost ? 'Update Post' : 'Create Post'}
                 </button>

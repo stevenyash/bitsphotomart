@@ -348,24 +348,11 @@ export function VideoUploadForm({ photographerId }: VideoUploadFormProps) {
               />
             </div>
 
-            {/* Tags */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">
-                Tags
-              </label>
-              <Input
-                value={videoData.tags}
-                onChange={(e) => updateVideoData("tags", e.target.value)}
-                placeholder="drone, aerial, landscape"
-                className="bg-slate-700 border-slate-600 text-white"
-              />
-            </div>
-
-            {/* Price & License */}
+            {/* Price & License - Coming Soon */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              <div className="opacity-50">
                 <label className="block text-sm font-medium text-slate-300 mb-1">
-                  Price (KES) *
+                  Price (KES) - Coming Soon
                 </label>
                 <Input
                   type="number"
@@ -375,8 +362,9 @@ export function VideoUploadForm({ photographerId }: VideoUploadFormProps) {
                   onChange={(e) => updateVideoData("price", e.target.value)}
                   placeholder="2500"
                   className="bg-slate-700 border-slate-600 text-white"
-                  required
+                  disabled
                 />
+                <p className="text-xs text-amber-400 mt-1">Pricing feature coming soon</p>
               </div>
 
               <div>

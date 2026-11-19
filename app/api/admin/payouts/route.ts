@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { hasPermission } from "@/lib/rbac";
 
 // GET - Get all payout requests
 export async function GET(request: Request) {
@@ -11,9 +13,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC - payouts.view permission required
+    const hasAccess = await hasPermission('payouts.view');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - payouts.view permission required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -111,9 +114,10 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC - payouts.approve permission required
+    const hasAccess = await hasPermission('payouts.approve');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - payouts.approve permission required' }, { status: 403 });
     }
 
     const body = await request.json();

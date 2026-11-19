@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { ContactForm } from "@/components/forms/contact-form";
 import { PageContainer, PageHeader, Section } from "@/components/ui/page-container";
 
@@ -9,6 +11,14 @@ export const metadata = {
 export default function ContactPage() {
   return (
     <PageContainer>
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+      </div>
+
       {/* Hero Section */}
       <Section className="bg-gradient-to-b from-background to-muted/30 -mx-4 px-4 pt-16 pb-12">
         <div className="text-center max-w-3xl mx-auto">

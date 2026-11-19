@@ -1,5 +1,6 @@
 'use client';
 
+import { theme } from "@/lib/admin-theme";
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -75,7 +76,7 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Hero Section */}
       {post.featuredImage && (
         <div className="relative h-96 w-full">

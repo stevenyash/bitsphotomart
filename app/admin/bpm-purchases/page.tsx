@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { theme } from "@/lib/admin-theme";
 
 interface BpmPurchaseOffer {
   id: string;
@@ -161,17 +162,17 @@ export default function AdminBpmPurchasesPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className={`min-h-screen ${theme.secondary} py-8 px-4`}>
       <div className="container mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">BPM Photo Purchases</h1>
-          <p className="text-gray-600">Manage photo submissions for BPM to consider and purchase</p>
+          <h1 className={`text-2xl font-bold ${theme.heading}`}>BPM Photo Purchases</h1>
+          <p className={theme.mutedText}>Manage photo submissions for BPM to consider and purchase</p>
         </div>
 
         {/* Filters */}
@@ -182,8 +183,8 @@ export default function AdminBpmPurchasesPage() {
               onClick={() => setFilter(status)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === status 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-card text-foreground hover:bg-muted border border-border'
               }`}
             >
               {status.replace('_', ' ')}
@@ -201,7 +202,7 @@ export default function AdminBpmPurchasesPage() {
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-sm text-gray-500">Under Review</p>
-            <p className="text-2xl font-bold text-blue-600">
+            <p className="text-2xl font-bold text-primary">
               {offers.filter(o => o.status === 'UNDER_REVIEW').length}
             </p>
           </div>
@@ -252,17 +253,17 @@ export default function AdminBpmPurchasesPage() {
                           />
                         </div>
                         <div className="ml-4">
-                          <p className="font-medium text-gray-900">{offer.title}</p>
+                          <p className={`font-medium ${theme.heading}`}>{offer.title}</p>
                           <p className="text-sm text-gray-500 line-clamp-1">{offer.description}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-gray-900">{offer.user.name || 'Unknown'}</p>
+                      <p className={theme.heading}>{offer.user.name || 'Unknown'}</p>
                       <p className="text-sm text-gray-500">{offer.user.email}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{formatPrice(offer.askingPrice)}</p>
+                      <p className={`font-medium ${theme.heading}`}>{formatPrice(offer.askingPrice)}</p>
                       {offer.offeredPrice && (
                         <p className="text-sm text-green-600">Offered: {formatPrice(offer.offeredPrice)}</p>
                       )}
@@ -287,7 +288,7 @@ export default function AdminBpmPurchasesPage() {
                                 setSelectedOffer(offer);
                                 setShowModal(true);
                               }}
-                              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                              className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm hover:opacity-90"
                             >
                               Make Offer
                             </button>
@@ -339,7 +340,7 @@ export default function AdminBpmPurchasesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Make an Offer</h3>
+              <h3 className={`text-lg font-bold ${theme.heading} mb-4`}>Make an Offer</h3>
               
               <div className="flex gap-4 mb-6">
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
@@ -350,7 +351,7 @@ export default function AdminBpmPurchasesPage() {
                   />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{selectedOffer.title}</p>
+                  <p className={`font-medium ${theme.heading}`}>{selectedOffer.title}</p>
                   <p className="text-sm text-gray-500">Asking: {formatPrice(selectedOffer.askingPrice)}</p>
                   <p className="text-sm text-gray-500">By: {selectedOffer.user.name || selectedOffer.user.email}</p>
                 </div>
@@ -393,7 +394,7 @@ export default function AdminBpmPurchasesPage() {
                   <button
                     type="submit"
                     disabled={actionLoading}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 disabled:opacity-50"
                   >
                     {actionLoading ? 'Sending...' : 'Send Offer'}
                   </button>

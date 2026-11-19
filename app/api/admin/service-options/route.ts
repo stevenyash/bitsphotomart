@@ -1,14 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { hasPermission } from '@/lib/rbac';
 
 // GET /api/admin/service-options - List all service options
 export async function GET(request: Request) {
   try {
     const session = await auth();
     
-    if (!session || (session.user as any)?.role !== 'ADMIN') {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('services.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - services.manage permission required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -48,8 +56,14 @@ export async function POST(request: Request) {
   try {
     const session = await auth();
     
-    if (!session || (session.user as any)?.role !== 'ADMIN') {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('services.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - services.manage permission required' }, { status: 403 });
     }
 
     const body = await request.json();

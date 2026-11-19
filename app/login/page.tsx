@@ -29,11 +29,24 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError("Invalid email or password");
-      } else {
-        router.push("/dashboard");
-        router.refresh();
+        return;
       }
+
+      const session = await fetch('/api/auth/session').then(r => r.json());
+      const userRole = session?.user?.role;
+
+      if (userRole === 'MARKETER') {
+        router.push('/dashboard/marketer');
+      } else if (userRole === 'PHOTOGRAPHER') {
+        router.push('/dashboard/photographer');
+      } else if (userRole === 'USER') {
+        router.push('/dashboard');
+      } else {
+        router.push('/admin');
+      }
+      router.refresh();
     } catch (err) {
+      console.error("Login error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -41,12 +54,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-muted dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12 px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <Camera className="h-10 w-10 text-amber-600" />
+            <Camera className="h-10 w-10 text-primary" />
             <span className="text-2xl font-bold text-foreground">Bits Photo Mart</span>
           </Link>
         </div>
@@ -97,12 +110,12 @@ export default function LoginPage() {
                 <input type="checkbox" className="rounded border-input" />
                 <span>Remember me</span>
               </label>
-              <Link href="/forgot-password" className="text-amber-600 hover:text-amber-700 dark:text-amber-500 font-medium">
+              <Link href="/forgot-password" className="text-primary hover:text-primary/70 dark:text-primary font-medium">
                 Forgot password?
               </Link>
             </div>
 
-            <Button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -116,8 +129,8 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
-              Don't have an account?{" "}
-              <Link href="/register" className="text-amber-600 hover:text-amber-700 dark:text-amber-500 font-medium">
+              Don&apos;t have an account?{" "}
+              <Link href="/register" className="text-primary hover:text-primary/70 dark:text-primary font-medium">
                 Register here
               </Link>
             </p>
@@ -125,9 +138,9 @@ export default function LoginPage() {
         </div>
 
         {/* Demo Credentials Info */}
-        <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-sm border border-amber-200 dark:border-amber-800">
-          <p className="font-medium text-amber-800 dark:text-amber-300 mb-2">💡 To test:</p>
-          <ul className="text-amber-700 dark:text-amber-400 space-y-1">
+        <div className="mt-6 p-4 bg-muted rounded-lg text-sm border border-border">
+          <p className="font-medium mb-2">To test:</p>
+          <ul className="space-y-1">
             <li>1. Register a new account</li>
             <li>2. Or use the registration page to create a user</li>
           </ul>

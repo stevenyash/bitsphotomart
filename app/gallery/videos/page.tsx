@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { theme } from "@/lib/admin-theme";
 import { 
   Search, 
   Image as ImageIcon,
@@ -111,7 +112,7 @@ export default async function VideoGalleryPage({
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">

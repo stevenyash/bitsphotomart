@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
+import { theme } from "@/lib/admin-theme";
+import {
   Check, 
   X, 
   User,
@@ -120,21 +121,21 @@ export default function AdminPhotographersPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${theme.background}`}>
       {/* Header */}
-      <div className="bg-red-600 text-white">
+      <div className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
               onClick={() => window.location.href = '/admin'}
-              className="text-white hover:bg-red-700"
+              className="text-primary-foreground hover:bg-primary/80"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Photographer Applications</h1>
-              <p className="text-red-100">Review and manage photographer applications</p>
+              <h1 className="text-2xl font-bold text-primary-foreground">Photographer Applications</h1>
+              <p className="text-primary-foreground/80">Review and manage photographer applications</p>
             </div>
           </div>
         </div>
@@ -149,7 +150,7 @@ export default function AdminPhotographersPage() {
                 key={f}
                 variant={filter === f ? "default" : "outline"}
                 onClick={() => setFilter(f)}
-                className={filter === f ? "bg-red-600 hover:bg-red-700" : ""}
+                className={filter === f ? "bg-primary hover:opacity-90" : ""}
               >
                 {f === "PENDING" && "Pending"}
                 {f === "APPROVED" && "Approved"}
@@ -164,14 +165,14 @@ export default function AdminPhotographersPage() {
               placeholder="Search by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className={theme.input}
             />
           </div>
         </div>
 
         {/* Stats */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <p className="text-sm text-gray-600">
+        <div className={`${theme.cardStyle} p-4 mb-6`}>
+          <p className={`text-sm ${theme.mutedText}`}>
             Showing <span className="font-semibold">{filteredPhotographers.length}</span> applications
             {!(filter === "PENDING" || filter === "ALL" || !` (${filter.toLowerCase()})`)}
           </p>
@@ -180,13 +181,13 @@ export default function AdminPhotographersPage() {
         {/* Photographers List */}
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : filteredPhotographers.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <div className={`${theme.cardStyle} p-12 text-center`}>
             <User className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No photographer applications</h3>
-            <p className="text-gray-600">
+            <h3 className={`text-lg font-semibold ${theme.heading} mb-2`}>No photographer applications</h3>
+            <p className={theme.mutedText}>
               {filter === "PENDING" 
                 ? "No pending applications to review."
                 : `No ${filter.toLowerCase()} photographers.`}
@@ -197,7 +198,7 @@ export default function AdminPhotographersPage() {
             {filteredPhotographers.map((photographer) => (
               <div 
                 key={photographer.id} 
-                className="bg-white rounded-lg shadow-sm p-6"
+                className={`${theme.cardStyle} p-6`}
               >
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   {/* Avatar */}
@@ -209,7 +210,7 @@ export default function AdminPhotographersPage() {
                         className="w-20 h-20 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+                      <div className={`w-20 h-20 rounded-full ${theme.secondary} flex items-center justify-center`}>
                         <Camera className="h-8 w-8 text-gray-400" />
                       </div>
                     )}
@@ -218,32 +219,32 @@ export default function AdminPhotographersPage() {
                   {/* Info */}
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className={`text-lg font-semibold ${theme.heading}`}>
                         {photographer.user.name || "No name"}
                       </h3>
                       {photographer.status === "PENDING" && (
-                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                        <span className="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs px-2 py-1 rounded-full">
                           Pending
                         </span>
                       )}
                       {photographer.status === "APPROVED" && (
-                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                        <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full">
                           Approved
                         </span>
                       )}
                       {photographer.status === "REJECTED" && (
-                        <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                        <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs px-2 py-1 rounded-full">
                           Rejected
                         </span>
                       )}
                       {photographer.status === "SUSPENDED" && (
-                        <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
+                        <span className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs px-2 py-1 rounded-full">
                           Suspended
                         </span>
                       )}
                     </div>
                     
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <div className={`space-y-1 text-sm ${theme.mutedText}`}>
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4" />
                         <span>{photographer.user.email}</span>
@@ -267,7 +268,7 @@ export default function AdminPhotographersPage() {
                       <Button
                         onClick={() => handleApprove(photographer.id)}
                         disabled={processingId === photographer.id}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
                       >
                         {processingId === photographer.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -304,11 +305,11 @@ export default function AdminPhotographersPage() {
       {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Reject Photographer Application</h3>
-            <p className="text-gray-600 mb-4">Please provide a reason for rejection (optional):</p>
+          <div className={`${theme.cardStyle} p-6 max-w-md w-full mx-4`}>
+            <h3 className={`text-lg font-semibold mb-4 ${theme.heading}`}>Reject Photographer Application</h3>
+            <p className={`${theme.mutedText} mb-4`}>Please provide a reason for rejection (optional):</p>
             <textarea
-              className="w-full border rounded-md p-3 mb-4 h-24 resize-none"
+              className={`w-full border ${theme.border} rounded-md p-3 mb-4 h-24 resize-none ${theme.input}`}
               placeholder="Enter reason for rejection..."
               value={rejectNotes}
               onChange={(e) => setRejectNotes(e.target.value)}
@@ -327,7 +328,7 @@ export default function AdminPhotographersPage() {
               <Button
                 onClick={() => rejectingId && handleReject(rejectingId)}
                 disabled={processingId === rejectingId}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
               >
                 {processingId === rejectingId ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

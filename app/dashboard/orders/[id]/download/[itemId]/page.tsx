@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { ArrowLeft, Download, CheckCircle, Image, FileImage } from "lucide-react";
+import { theme } from "@/lib/admin-theme";
 
 interface DownloadPageProps {
   params: Promise<{ id: string; itemId: string }>;
@@ -64,8 +65,8 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
   const photo = orderItem.photo;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-amber-50">
-      <div className="bg-white border-b">
+    <div className="min-h-screen bg-[var(--background)]">
+      <div className={`${theme.card} border-b`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link href={`/dashboard/orders/${id}`}>
@@ -74,7 +75,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                 Back to Order
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">Download Photo</h1>
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">Download Photo</h1>
           </div>
         </div>
       </div>
@@ -95,7 +96,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
           </div>
 
           {/* Photo Preview */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+          <div className={`${theme.card} rounded-xl shadow-sm overflow-hidden mb-6`}>
             <div className="aspect-video bg-gray-100 relative">
               {photo.originalUrl ? (
                 <img
@@ -104,48 +105,48 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                <div className="w-full h-full flex items-center justify-center text-[var(--muted-foreground)]">
                   <Image className="w-16 h-16" />
                 </div>
               )}
             </div>
             
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">{photo.title}</h2>
+              <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">{photo.title}</h2>
               {photo.description && (
-                <p className="text-gray-600 mb-4">{photo.description}</p>
+                <p className="text-[var(--muted-foreground)] mb-4">{photo.description}</p>
               )}
               
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500">License Type</p>
-                  <p className="font-medium">{orderItem.licenseType}</p>
+                  <p className="text-[var(--muted-foreground)]">License Type</p>
+                  <p className="font-medium text-[var(--foreground)]">{orderItem.licenseType}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Price Paid</p>
-                  <p className="font-medium">KES {Number(orderItem.price).toLocaleString()}</p>
+                  <p className="text-[var(--muted-foreground)]">Price Paid</p>
+                  <p className="font-medium text-[var(--foreground)]">KES {Number(orderItem.price).toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Resolution</p>
-                  <p className="font-medium">{photo.width}x{photo.height}</p>
+                  <p className="text-[var(--muted-foreground)]">Resolution</p>
+                  <p className="font-medium text-[var(--foreground)]">{photo.width}x{photo.height}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Format</p>
-                  <p className="font-medium">JPEG</p>
+                  <p className="text-[var(--muted-foreground)]">Format</p>
+                  <p className="font-medium text-[var(--foreground)]">JPEG</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Download Actions */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className={`${theme.card} rounded-xl shadow-sm p-6`}>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className={`flex items-center justify-between p-4 ${theme.muted} rounded-lg`}>
                 <div className="flex items-center gap-3">
                   <FileImage className="w-8 h-8 text-amber-600" />
                   <div>
-                    <p className="font-medium">High Resolution</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-[var(--foreground)]">High Resolution</p>
+                    <p className="text-sm text-[var(--muted-foreground)]">
                       {photo.width}x{photo.height} • JPEG
                     </p>
                   </div>
@@ -165,9 +166,9 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
             </div>
 
             {/* License Info */}
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="font-medium mb-2">License Information</h3>
-              <div className="text-sm text-gray-600 space-y-2">
+            <div className="mt-6 pt-6 border-t border-[var(--border)]">
+              <h3 className="font-medium mb-2 text-[var(--foreground)]">License Information</h3>
+              <div className="text-sm text-[var(--muted-foreground)] space-y-2">
                 {orderItem.licenseType === "STANDARD" ? (
                   <p>
                     <strong>Standard License</strong> - Use for personal, non-commercial projects. 
@@ -179,7 +180,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
                     Unlimited impressions. Includes merchandise rights.
                   </p>
                 )}
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-[var(--muted-foreground)] mt-2">
                   By downloading this photo, you agree to the Terms of Service.
                 </p>
               </div>
@@ -188,7 +189,7 @@ export default async function DownloadPage({ params }: DownloadPageProps) {
 
           {/* Help */}
           <div className="mt-6 text-center">
-            <p className="text-gray-500 text-sm">
+            <p className="text-[var(--muted-foreground)] text-sm">
               Having trouble downloading?{" "}
               <Link href="/contact" className="text-amber-600 hover:underline">
                 Contact Support

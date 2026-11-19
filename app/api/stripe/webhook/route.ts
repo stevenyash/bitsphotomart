@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { constructWebhookEvent, processPaymentSuccess } from "@/lib/stripe";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { calculateFeeSplit } from "@/lib/settings";
+import { creditCommissionForOrder } from "@/lib/commission";
 
 export async function POST(request: NextRequest) {
   try {
@@ -90,24 +91,27 @@ export async function POST(request: NextRequest) {
               });
             }
 
-            // Send order confirmation email
-            const emailSent = await sendOrderConfirmationEmail(
-              order.id,
-              order.orderNumber,
-              order.user.email || "",
-              order.user.name || "Customer",
-              order.items.map((item: { photo: { title: any; }; price: any; licenseType: any; }) => ({
-                title: item.photo.title,
-                price: Number(item.price),
-                licenseType: item.licenseType,
-              })),
-              Number(order.total),
-              "Stripe"
-            );
-            
-            if (emailSent) {
-              console.log(`Order confirmation email sent for order ${order.orderNumber}`);
-            }
+              // Send order confirmation email
+              const emailSent = await sendOrderConfirmationEmail(
+                order.id,
+                order.orderNumber,
+                order.user.email || "",
+                order.user.name || "Customer",
+                order.items.map((item: { photo: { title: any; }; price: any; licenseType: any; }) => ({
+                  title: item.photo.title,
+                  price: Number(item.price),
+                  licenseType: item.licenseType,
+                })),
+                Number(order.total),
+                "Stripe"
+              );
+              
+              if (emailSent) {
+                console.log(`Order confirmation email sent for order ${order.orderNumber}`);
+              }
+
+              // Credit commission to marketer if user was referred
+              await creditCommissionForOrder(order.id);
           }
 
           console.log(`Order ${result.orderId} marked as paid via Stripe webhook`);

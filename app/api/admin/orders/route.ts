@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { hasPermission } from "@/lib/rbac";
 
 // GET - Get all orders
 export async function GET(request: Request) {
@@ -11,9 +13,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('orders.view');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - orders.view permission required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -106,9 +109,10 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('orders.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - orders.manage permission required' }, { status: 403 });
     }
 
     const body = await request.json();

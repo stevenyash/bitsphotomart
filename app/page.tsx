@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
+
+// Force dynamic rendering - do not prerender at build time
+// This avoids Prisma connection pool timeout during static generation
+export const dynamic = 'force-dynamic';
 import { 
   Camera, 
   Video, 
@@ -41,10 +45,10 @@ async function FeaturedGallery() {
   if (photosWithNumberPrice.length === 0) {
     return (
       <div className="text-center py-12">
-        <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500">No photos available yet. Be the first to upload!</p>
+        <ImageIcon className="h-16 w-16 text-[var(--muted-foreground)] mx-auto mb-4" />
+        <p className="text-[var(--muted-foreground)]">No photos available yet. Be the first to upload!</p>
         <Link href="/register?role=photographer" className="mt-4 inline-block">
-          <Button className="bg-amber-600 hover:bg-amber-700">
+          <Button className="bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)]">
             Become a Photographer
           </Button>
         </Link>
@@ -112,7 +116,7 @@ const whatWeDoServices = [
   },
 ];
 
-// Why Choose Us - 6 features
+// Why Choose Us - 5 features (from brief)
 const whyChooseUs = [
   {
     icon: MapPin,
@@ -139,15 +143,10 @@ const whyChooseUs = [
     title: "Professional Quality Guaranteed",
     description: "Vetted photographers and videographers with proven track records.",
   },
-  {
-    icon: Heart,
-    title: "Customer Satisfaction",
-    description: "Dedicated support and 98% client satisfaction rate.",
-  },
 ];
 
 export const metadata = {
-  title: "Bits Photo Mart - Your Nationwide Creative Media Network",
+  title: "BPM - Your Creative Media Network!",
   description: "Bits Photo Mart connects organisations to a verified network of photographers, videographers, and documentary storytellers across Kenya.",
 };
 
@@ -167,10 +166,7 @@ export default function HomePage() {
         <div className="relative container mx-auto px-4 py-24 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight">
-              Your Nationwide <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">
-                Creative Media Network
-              </span>
+              BPM - Your Creative Media Network!
             </h1>
             
             <p className="text-lg md:text-xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
@@ -181,14 +177,14 @@ export default function HomePage() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/services">
-                <Button size="lg" className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-8">
-                  Book a Creative Team
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                <Button size="lg" variant="outline" className="w-full sm:w-auto bg-accent border-white/30 text-black hover:bg-white/10 hover:text-white hover:border-white/50 px-8">
+                  Our Services
                 </Button>
               </Link>
               <Link href="/services">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto bg-accent border-white/30 text-black hover:bg-white/10 hover:text-white hover:border-white/50 px-8">
-                  Our Services
+                <Button size="lg" className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-8">
+                  Book a Service
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
@@ -197,42 +193,61 @@ export default function HomePage() {
       </section>
 
       {/* What We Do Section - 5 Cards */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-900/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            <span className="inline-block px-4 py-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold text-sm rounded-full mb-4">
+              Our Services
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] mb-4">
               What We Do
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto">
               Comprehensive creative media services tailored to your needs across Kenya.
             </p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
             {whatWeDoServices.map((service, index) => (
-              <div
+              <Link
+                href="/services"
                 key={index}
-                className="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center"
+                className="group bg-[var(--card)] border-2 border-transparent hover:border-amber-400 dark:hover:border-amber-500 rounded-2xl p-4 md:p-6 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center relative overflow-hidden"
               >
-                <div className="w-12 h-12 md:w-14 md:h-14 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4">
-                  <service.icon className="h-6 w-6 md:h-7 md:w-7 text-white" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-amber-400/10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
+                <div className="relative">
+                  <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <service.icon className="h-7 w-7 md:h-8 md:w-8 text-white" />
+                  </div>
+                  <h3 className="text-base md:text-lg font-bold text-[var(--foreground)] mb-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{service.title}</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">{service.description}</p>
+                  <div className="mt-4 flex items-center justify-center gap-1 text-amber-600 dark:text-amber-400 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    Learn More <ArrowRight className="h-4 w-4" />
+                  </div>
                 </div>
-                <h3 className="text-base md:text-lg font-bold text-slate-900 mb-2">{service.title}</h3>
-                <p className="text-sm text-slate-600">{service.description}</p>
-              </div>
+              </Link>
             ))}
+          </div>
+          
+          <div className="text-center mt-10">
+            <Link href="/services">
+              <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-8">
+                View All Services
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Why Choose Us - 6 Features */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-[var(--background)]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] mb-4">
               Why Choose Us
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto">
               Experience the difference with Kenya&apos;s most trusted creative media network.
             </p>
           </div>
@@ -241,15 +256,15 @@ export default function HomePage() {
             {whyChooseUs.map((feature, index) => (
               <div 
                 key={index}
-                className="bg-white rounded-xl p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="bg-[var(--card)] rounded-xl p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow border border-[var(--border)]"
               >
                 <div className="flex items-start gap-3 md:gap-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <feature.icon className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <feature.icon className="h-5 w-5 md:h-6 md:w-6 text-blue-600 dark:text-blue-300" />
                   </div>
                   <div>
-                    <h3 className="text-base md:text-lg font-bold text-slate-900 mb-1 md:mb-2">{feature.title}</h3>
-                    <p className="text-sm text-slate-600">{feature.description}</p>
+                    <h3 className="text-base md:text-lg font-bold text-[var(--foreground)] mb-1 md:mb-2">{feature.title}</h3>
+                    <p className="text-sm text-[var(--muted-foreground)]">{feature.description}</p>
                   </div>
                 </div>
               </div>
@@ -259,13 +274,13 @@ export default function HomePage() {
       </section>
 
       {/* Featured Gallery Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-[var(--background)]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] mb-4">
               Featured Gallery
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto">
               Explore our collection of high-quality stock photos from talented photographers across Kenya.
             </p>
           </div>
@@ -283,11 +298,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Get Started CTA */}
+      {/* Register for Login CTA */}
       <section className="py-20 bg-gradient-to-br from-amber-500 to-orange-600 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Get Started Today
+            Register for Login
           </h2>
           <p className="text-lg text-amber-100 max-w-2xl mx-auto mb-8">
             Ready to bring your creative vision to life? Book a professional creative team or browse our stock library.

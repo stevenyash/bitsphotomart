@@ -1,51 +1,69 @@
 @import "tailwindcss";
 
-/* Bits Photo Mart Theme - Photography Marketplace - Improved Contrast */
+/* Bits Photo Mart Theme - Photography Marketplace - High Contrast Admin Theme */
 :root {
-  /* Light mode */
-  --background: #ffffff;
-  --foreground: #111111;
-  --primary: #d97706;       /* Amber/Gold - photography warmth */
+  /* Light mode - High contrast for admin panels */
+  --background: #f8fafc;           /* Slate-50 - soft white background */
+  --foreground: #0f172a;           /* Slate-900 - high contrast dark text */
+  --primary: #d97706;              /* Amber-600 - brand primary */
   --primary-foreground: #ffffff;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #111111;
-  --muted: #f9fafb;
-  --muted-foreground: #4b5563;
-  --accent: #fef3c7;        /* Warm amber accent */
-  --accent-foreground: #92400e;
-  --destructive: #dc2626;
+  --secondary: #ffffff;           /* Pure white cards */
+  --secondary-foreground: #1e293b; /* Slate-800 */
+  --muted: #f1f5f9;                /* Slate-100 */
+  --muted-foreground: #64748b;     /* Slate-500 - readable muted text */
+  --accent: #fef3c7;               /* Amber-100 */
+  --accent-foreground: #92400e;    /* Amber-800 */
+  --destructive: #dc2626;         /* Red-600 */
   --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
+  --border: #e2e8f0;               /* Slate-200 */
+  --input: #e2e8f0;
   --ring: #d97706;
   --card: #ffffff;
-  --card-foreground: #111111;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #111111;
+  --popover-foreground: #0f172a;
+  
+  /* Custom admin colors */
+  --admin-sidebar: #1e293b;       /* Slate-800 */
+  --admin-sidebar-foreground: #f1f5f9;
+  --admin-header: #ffffff;
+  --admin-header-foreground: #0f172a;
+  --stat-card-bg: #ffffff;
+  --table-header: #f8fafc;
+  --table-row-hover: #f1f5f9;
 }
 
+/* Dark mode - High contrast for admin panels */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark mode */
-    --background: #111111;
-    --foreground: #fafafa;
-    --primary: #d97706;      /* Amber/Gold */
-    --primary-foreground: #ffffff;
-    --secondary: #1f2937;
-    --secondary-foreground: #fafafa;
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
-    --accent: #451a03;
+    --background: #0f172a;         /* Slate-900 */
+    --foreground: #f8fafc;         /* Slate-50 - high contrast light text */
+    --primary: #fbbf24;            /* Amber-400 - brighter for dark mode */
+    --primary-foreground: #0f172a;
+    --secondary: #1e293b;          /* Slate-800 */
+    --secondary-foreground: #f8fafc;
+    --muted: #1e293b;              /* Slate-800 */
+    --muted-foreground: #94a3b8;    /* Slate-400 */
+    --accent: #451a03;             /* Amber-900 */
     --accent-foreground: #fef3c7;
-    --destructive: #7f1d1d;
-    --destructive-foreground: #fafafa;
-    --border: #374151;
-    --input: #374151;
-    --ring: #d97706;
-    --card: #1f2937;
-    --card-foreground: #fafafa;
-    --popover: #1f2937;
-    --popover-foreground: #fafafa;
+    --destructive: #991b1b;         /* Red-800 */
+    --destructive-foreground: #f8fafc;
+    --border: #334155;              /* Slate-700 */
+    --input: #334155;
+    --ring: #fbbf24;
+    --card: #1e293b;
+    --card-foreground: #f8fafc;
+    --popover: #1e293b;
+    --popover-foreground: #f8fafc;
+    
+    /* Custom admin colors - dark mode */
+    --admin-sidebar: #020617;      /* Slate-950 */
+    --admin-sidebar-foreground: #f8fafc;
+    --admin-header: #1e293b;       /* Slate-800 */
+    --admin-header-foreground: #f8fafc;
+    --stat-card-bg: #1e293b;
+    --table-header: #1e293b;
+    --table-row-hover: #334155;
   }
 }
 
@@ -70,6 +88,15 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   
+  /* Admin specific */
+  --color-admin-sidebar: var(--admin-sidebar);
+  --color-admin-sidebar-foreground: var(--admin-sidebar-foreground);
+  --color-admin-header: var(--admin-header);
+  --color-admin-header-foreground: var(--admin-header-foreground);
+  --color-stat-card: var(--stat-card-bg);
+  --color-table-header: var(--table-header);
+  --color-table-row-hover: var(--table-row-hover);
+  
   --font-sans: var(--font-inter), Arial, Helvetica, sans-serif;
 }
 
@@ -81,7 +108,123 @@ body {
   overflow-x: hidden;
 }
 
+/* Admin panel base styles */
+.admin-container {
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.admin-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.admin-card:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.admin-header {
+  background: var(--admin-header);
+  border-bottom: 1px solid var(--border);
+  color: var(--admin-header-foreground);
+}
+
+.admin-stat-value {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.admin-stat-label {
+  color: var(--muted-foreground);
+}
+
+.admin-table-header {
+  background: var(--table-header);
+  color: var(--foreground);
+}
+
+.admin-table-row:hover {
+  background: var(--table-row-hover);
+}
+
+.admin-text-primary {
+  color: var(--foreground);
+}
+
+.admin-text-secondary {
+  color: var(--muted-foreground);
+}
+
 /* Custom utility for photography vibe */
 .bg-photo-gradient {
   background: linear-gradient(135deg, #0a0a0a 0%, #1f2937 100%);
+}
+
+/* Ensure proper contrast for all text */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--foreground);
+}
+
+p, span, div {
+  color: var(--foreground);
+}
+
+/* Fix for daisyUI badge contrast */
+.badge {
+  font-weight: 500;
+}
+
+/* Status badges with better contrast */
+.badge-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-warning {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.badge-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-ghost {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge-success {
+    background-color: #166534;
+    color: #dcfce7;
+  }
+  
+  .badge-warning {
+    background-color: #854d0e;
+    color: #fef9c3;
+  }
+  
+  .badge-error {
+    background-color: #991b1b;
+    color: #fee2e2;
+  }
+  
+  .badge-info {
+    background-color: #1e40af;
+    color: #dbeafe;
+  }
+  
+  .badge-ghost {
+    background-color: #334155;
+    color: #94a3b8;
+  }
 }

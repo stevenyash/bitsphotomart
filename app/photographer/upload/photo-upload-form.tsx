@@ -52,7 +52,6 @@ export function PhotoUploadForm({ photographerId }: PhotoUploadFormProps) {
     title: string;
     description: string;
     category: string;
-    tags: string;
     price: string;
     licenseType: string;
   }[]>([]);
@@ -61,6 +60,11 @@ export function PhotoUploadForm({ photographerId }: PhotoUploadFormProps) {
     const files = Array.from(e.target.files || []);
     
     if (files.length === 0) return;
+
+    if (uploadedFiles.length + files.length > 50) {
+      setMessage({ type: "error", text: "Maximum 50 photos allowed per upload" });
+      return;
+    }
 
     setIsUploading(true);
     setMessage(null);
@@ -101,7 +105,6 @@ export function PhotoUploadForm({ photographerId }: PhotoUploadFormProps) {
           title: f.file.name.replace(/\.[^/.]+$/, ""), // Use filename without extension as title
           description: "",
           category: "Other", // Default category
-          tags: "",
           price: "500", // Default price
           licenseType: "STANDARD",
         };
@@ -163,7 +166,6 @@ export function PhotoUploadForm({ photographerId }: PhotoUploadFormProps) {
               title: photo.title,
               description: photo.description,
               category: photo.category,
-              tags: photo.tags,
               originalUrl: fileData.preview, // Would be uploaded URL in production
               thumbnailUrl: fileData.preview, // Would be thumbnail URL in production
               price: photo.price,
@@ -185,7 +187,7 @@ export function PhotoUploadForm({ photographerId }: PhotoUploadFormProps) {
       if (successCount > 0) {
         setMessage({ 
           type: "success", 
-          text: `Successfully uploaded ${successCount} photo(s)! They will be available after admin approval.` 
+          text: `Successfully uploaded ${successCount} photo(s)! BPM will review them within 7 days. Unpurchased photos will be automatically removed.` 
         });
         
         // Clear form
@@ -225,7 +227,7 @@ export function PhotoUploadForm({ photographerId }: PhotoUploadFormProps) {
               Click to select photos or drag and drop
             </p>
             <p className="text-slate-400 text-sm">
-              Supports JPG, PNG, WEBP (Max 20MB per file)
+              Supports JPG, PNG, WEBP (Max 20MB per file, max 50 photos)
             </p>
           </label>
         </div>
@@ -321,34 +323,23 @@ export function PhotoUploadForm({ photographerId }: PhotoUploadFormProps) {
                       />
                     </div>
 
-                    {/* Tags */}
-                    <div>
+                    {/* Price - Coming Soon */}
+                    <div className="opacity-50">
                       <label className="block text-sm font-medium text-slate-300 mb-1">
-                        Tags
-                      </label>
-                      <Input
-                        value={photo.tags}
-                        onChange={(e) => updatePhotoData(photo.id, "tags", e.target.value)}
-                        placeholder="landscape, nature, sunset"
-                        className="bg-slate-700 border-slate-600 text-white"
-                      />
-                    </div>
-
-                    {/* Price */}
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">
-                        Price (KES) *
+                        Price (KES) - Coming Soon
                       </label>
                       <Input
                         type="number"
-                        min="1"
+                        min="50"
+                        max="1000"
                         step="1"
                         value={photo.price}
                         onChange={(e) => updatePhotoData(photo.id, "price", e.target.value)}
-                        placeholder="500"
+                        placeholder="50-1000"
                         className="bg-slate-700 border-slate-600 text-white"
-                        required
+                        disabled
                       />
+                      <p className="text-xs text-amber-400 mt-1">Pricing feature coming soon - BPM will set prices</p>
                     </div>
 
                     {/* License Type */}

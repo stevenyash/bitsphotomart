@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Camera, Mail, Phone, MapPin } from "lucide-react";
+import { FooterPricing } from "./footer-pricing";
+import { FooterContactInfo } from "./contact-info";
 
 export function Footer() {
   return (
@@ -41,6 +43,11 @@ export function Footer() {
                   Blog
                 </Link>
               </li>
+              <li>
+                <Link href="/user-guide" className="text-muted-foreground hover:text-primary">
+                  User Guide
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -74,25 +81,46 @@ export function Footer() {
           {/* Contact */}
           <div className="space-y-4">
             <h3 className="font-semibold">Contact</h3>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-4 w-4" />
-                <span>info@bitsphotomart.com</span>
-              </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <Phone className="h-4 w-4" />
-                <span>+254 XXX XXX XXX</span>
-              </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>Kitui, Kenya</span>
-              </li>
-            </ul>
+            <FooterContactInfo />
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Bits Photo Mart. All rights reserved.</p>
+        </div>
+
+        <div className="mt-8 pt-8 border-t">
+          <h3 className="font-semibold mb-4 text-center">Quick Guide</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+            <div>
+              <h4 className="font-medium mb-2">Book Our Services</h4>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>1. Visit Services page</li>
+                <li>2. Choose service type</li>
+                <li>3. Request a quote</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Our BPM Pricing</h4>
+              <FooterPricing />
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Navigate to Gallery</h4>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>1. Go to Gallery</li>
+                <li>2. Browse photos/videos</li>
+                <li>3. Click to view details</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">For Photographers</h4>
+              <ul className="space-y-1 text-muted-foreground">
+                <li><Link href="/register/photographer" className="hover:text-primary">Become a Photographer</Link></li>
+                <li><Link href="/photographer/upload" className="hover:text-primary">Upload Photos</Link></li>
+                <li><Link href="/photographer/jobs" className="hover:text-primary">View Jobs</Link></li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

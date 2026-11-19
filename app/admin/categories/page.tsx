@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { auth } from '@/lib/auth';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { theme } from '@/lib/admin-theme';
 
 interface Category {
   id: string;
@@ -103,62 +104,62 @@ export default function AdminCategoriesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className={`min-h-screen ${theme.background} flex items-center justify-center`}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-blue-600 text-white shadow-lg">
+    <div className={`min-h-screen ${theme.background}`}>
+      <div className="bg-primary text-primary-foreground shadow-lg">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold">BPM Linkages - Categories</h1>
-          <p className="text-blue-100 text-lg">Manage BPM Linkages categories</p>
+          <h1 className="text-3xl font-bold text-primary-foreground">BPM Linkages - Categories</h1>
+          <p className="text-primary-foreground/80 text-lg">Manage BPM Linkages categories</p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">All Categories</h2>
+          <h2 className={`text-2xl font-bold ${theme.heading}`}>All Categories</h2>
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+            className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:opacity-90 transition"
           >
             {showAddForm ? 'Cancel' : 'Add Category'}
           </button>
         </div>
 
         {showAddForm && (
-          <div className="bg-white p-6 rounded-xl shadow-md mb-6">
-            <h3 className="text-lg font-bold mb-4">Add New Category</h3>
+          <div className={`${theme.cardStyle} p-6 mb-6`}>
+            <h3 className={`text-lg font-bold mb-4 ${theme.heading}`}>Add New Category</h3>
             <form onSubmit={handleAddCategory} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Name</label>
                 <input
                   type="text"
                   value={newCategory.name}
                   onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-4 py-2 ${theme.input} ${theme.border} rounded-lg focus:ring-2 focus:ring-blue-500`}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Slug</label>
                 <input
                   type="text"
                   value={newCategory.slug}
                   onChange={(e) => setNewCategory({ ...newCategory, slug: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-4 py-2 ${theme.input} ${theme.border} rounded-lg focus:ring-2 focus:ring-blue-500`}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className={`block text-sm font-medium ${theme.body} mb-1`}>Description</label>
                 <textarea
                   value={newCategory.description}
                   onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-4 py-2 ${theme.input} ${theme.border} rounded-lg focus:ring-2 focus:ring-blue-500`}
                   rows={3}
                 />
               </div>
@@ -169,50 +170,50 @@ export default function AdminCategoriesPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className={`${theme.cardStyle} overflow-hidden`}>
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className={theme.muted}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Slug</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Name</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Slug</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Description</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${theme.mutedText} uppercase`}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className={`divide-y ${theme.border}`}>
               {categories.map((category) => (
-                <tr key={category.id} className="hover:bg-gray-50">
+                <tr key={category.id} className={`${theme.tableRowHover}`}>
                   <td className="px-6 py-4">
                     {editingCategory?.id === category.id ? (
                       <input
                         type="text"
                         value={editingCategory.name}
                         onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
-                        className="w-full px-2 py-1 border rounded"
+                        className={`w-full px-2 py-1 ${theme.input} ${theme.border} rounded`}
                       />
                     ) : (
-                      <span className="font-medium text-gray-900">{category.name}</span>
+                      <span className={`font-medium ${theme.heading}`}>{category.name}</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-500">
+                  <td className={`px-6 py-4 ${theme.mutedText}`}>
                     {editingCategory?.id === category.id ? (
                       <input
                         type="text"
                         value={editingCategory.slug}
                         onChange={(e) => setEditingCategory({ ...editingCategory, slug: e.target.value })}
-                        className="w-full px-2 py-1 border rounded"
+                        className={`w-full px-2 py-1 ${theme.input} ${theme.border} rounded`}
                       />
                     ) : (
                       category.slug
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-500">
+                  <td className={`px-6 py-4 ${theme.mutedText}`}>
                     {editingCategory?.id === category.id ? (
                       <input
                         type="text"
                         value={editingCategory.description || ''}
                         onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
-                        className="w-full px-2 py-1 border rounded"
+                        className={`w-full px-2 py-1 ${theme.input} ${theme.border} rounded`}
                       />
                     ) : (
                       category.description || '-'
@@ -229,7 +230,7 @@ export default function AdminCategoriesPage() {
                         </button>
                         <button
                           onClick={() => setEditingCategory(null)}
-                          className="text-gray-600 hover:text-gray-800"
+                          className={`${theme.mutedText} hover:text-gray-800`}
                         >
                           Cancel
                         </button>
@@ -238,7 +239,7 @@ export default function AdminCategoriesPage() {
                       <div className="flex gap-4">
                         <button
                           onClick={() => setEditingCategory(category)}
-                          className="text-blue-600 hover:text-blue-800"
+                          className="text-primary hover:opacity-80"
                         >
                           Edit
                         </button>
@@ -256,7 +257,7 @@ export default function AdminCategoriesPage() {
             </tbody>
           </table>
           {categories.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
+            <div className={`p-8 text-center ${theme.mutedText}`}>
               No categories found. Add one to get started.
             </div>
           )}

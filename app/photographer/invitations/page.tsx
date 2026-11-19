@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { theme } from "@/lib/admin-theme";
 
 interface JobInvitation {
   id: string;
@@ -112,7 +113,7 @@ export default function PhotographerInvitationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold">Job Invitations</h1>
@@ -129,11 +130,11 @@ export default function PhotographerInvitationsPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">All Invitations</h2>
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">All Invitations</h2>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg bg-white"
+            className={`px-4 py-2 border border-[var(--border)] rounded-lg ${theme.card}`}
           >
             <option value="">All Status</option>
             <option value="PENDING">Pending</option>
@@ -143,10 +144,10 @@ export default function PhotographerInvitationsPage() {
         </div>
 
         {invitations.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-12 text-center">
+          <div className={`${theme.card} p-12 text-center`}>
             <div className="text-6xl mb-4">📬</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Invitations Yet</h3>
-            <p className="text-gray-600">
+            <h3 className="text-xl font-semibold text-[var(--foreground)] mb-2">No Invitations Yet</h3>
+            <p className="text-[var(--muted-foreground)]">
               You haven't received any job invitations yet. Check back later!
             </p>
           </div>
@@ -155,7 +156,7 @@ export default function PhotographerInvitationsPage() {
             {invitations.map((invitation) => (
               <div
                 key={invitation.id}
-                className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition"
+                className={`${theme.card} p-6 hover:shadow-lg transition`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -163,14 +164,14 @@ export default function PhotographerInvitationsPage() {
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[invitation.status]}`}>
                         {invitation.status}
                       </span>
-                      <span className="text-gray-500 text-sm">
+                      <span className="text-[var(--muted-foreground)] text-sm">
                         {jobTypeLabels[invitation.jobApplication.jobType] || invitation.jobApplication.jobType}
                       </span>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-[var(--foreground)]">
                       {invitation.jobApplication.clientName}'s {jobTypeLabels[invitation.jobApplication.jobType] || 'Job'}
                     </h3>
-                    <div className="mt-2 space-y-1 text-gray-600">
+                    <div className="mt-2 space-y-1 text-[var(--muted-foreground)]">
                       <p>📍 {invitation.jobApplication.location}</p>
                       {invitation.jobApplication.eventDate && (
                         <p>📅 {new Date(invitation.jobApplication.eventDate).toLocaleDateString()}</p>
@@ -198,7 +199,7 @@ export default function PhotographerInvitationsPage() {
                     </button>
                   </div>
                 </div>
-                <div className="mt-3 text-sm text-gray-500">
+                <div className="mt-3 text-sm text-[var(--muted-foreground)]">
                   Invited: {new Date(invitation.invitedAt).toLocaleString()}
                 </div>
               </div>
@@ -210,16 +211,16 @@ export default function PhotographerInvitationsPage() {
       {/* Modal for invitation details */}
       {selectedInvitation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className={`${theme.card} rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto`}>
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">Job Invitation</h2>
+                <h2 className="text-2xl font-bold text-[var(--foreground)]">Job Invitation</h2>
                 <button
                   onClick={() => {
                     setSelectedInvitation(null);
                     setResponseMessage('');
                   }}
-                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                  className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-2xl"
                 >
                   &times;
                 </button>
@@ -228,33 +229,33 @@ export default function PhotographerInvitationsPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-gray-500">Client Name</label>
-                    <p className="font-medium">{selectedInvitation.jobApplication.clientName}</p>
+                    <label className="text-sm text-[var(--muted-foreground)]">Client Name</label>
+                    <p className="font-medium text-[var(--foreground)]">{selectedInvitation.jobApplication.clientName}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Contact</label>
-                    <p className="font-medium">{selectedInvitation.jobApplication.clientPhone}</p>
+                    <label className="text-sm text-[var(--muted-foreground)]">Contact</label>
+                    <p className="font-medium text-[var(--foreground)]">{selectedInvitation.jobApplication.clientPhone}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Job Type</label>
-                    <p className="font-medium">
+                    <label className="text-sm text-[var(--muted-foreground)]">Job Type</label>
+                    <p className="font-medium text-[var(--foreground)]">
                       {jobTypeLabels[selectedInvitation.jobApplication.jobType] || selectedInvitation.jobApplication.jobType}
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Location</label>
-                    <p className="font-medium">{selectedInvitation.jobApplication.location}</p>
+                    <label className="text-sm text-[var(--muted-foreground)]">Location</label>
+                    <p className="font-medium text-[var(--foreground)]">{selectedInvitation.jobApplication.location}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Event Date</label>
-                    <p className="font-medium">
+                    <label className="text-sm text-[var(--muted-foreground)]">Event Date</label>
+                    <p className="font-medium text-[var(--foreground)]">
                       {selectedInvitation.jobApplication.eventDate
                         ? new Date(selectedInvitation.jobApplication.eventDate).toLocaleDateString()
                         : 'Not specified'}
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Budget</label>
+                    <label className="text-sm text-[var(--muted-foreground)]">Budget</label>
                     <p className="font-medium text-green-600">
                       {selectedInvitation.jobApplication.budget
                         ? `KES ${parseFloat(selectedInvitation.jobApplication.budget).toLocaleString()}`
@@ -264,8 +265,8 @@ export default function PhotographerInvitationsPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-500">Job Description</label>
-                  <p className="mt-1 text-gray-900 whitespace-pre-wrap">
+                  <label className="text-sm text-[var(--muted-foreground)]">Job Description</label>
+                  <p className="mt-1 text-[var(--foreground)] whitespace-pre-wrap">
                     {selectedInvitation.jobApplication.description}
                   </p>
                 </div>
@@ -284,15 +285,15 @@ export default function PhotographerInvitationsPage() {
 
                 {/* Response section for pending invitations */}
                 {selectedInvitation.status === 'PENDING' && (
-                  <div className="pt-4 border-t">
-                    <label className="text-sm text-gray-500 mb-2 block">
+                  <div className="pt-4 border-t border-[var(--border)]">
+                    <label className="text-sm text-[var(--muted-foreground)] mb-2 block">
                       Your Response (optional message)
                     </label>
                     <textarea
                       value={responseMessage}
                       onChange={(e) => setResponseMessage(e.target.value)}
                       placeholder="Add a message to your response..."
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-blue-500 ${theme.input}`}
                       rows={3}
                     />
                     <div className="flex gap-3 mt-4">
@@ -311,14 +312,14 @@ export default function PhotographerInvitationsPage() {
                         {responding ? 'Processing...' : '✗ Decline'}
                       </button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-[var(--muted-foreground)] mt-2">
                       By accepting, you agree to take on this job. The client will be notified.
                     </p>
                   </div>
                 )}
 
                 {selectedInvitation.status === 'ACCEPTED' && (
-                  <div className="pt-4 border-t bg-green-50 p-4 rounded-lg">
+                  <div className="pt-4 border-t border-[var(--border)] bg-green-50 p-4 rounded-lg">
                     <p className="text-green-800 font-medium">
                       ✓ You have accepted this job. Check your dashboard for details.
                     </p>
@@ -326,9 +327,9 @@ export default function PhotographerInvitationsPage() {
                 )}
 
                 {selectedInvitation.status === 'DECLINED' && selectedInvitation.photographerResponse && (
-                  <div className="pt-4 border-t">
-                    <label className="text-sm text-gray-500">Your Response:</label>
-                    <p className="text-gray-900">{selectedInvitation.photographerResponse}</p>
+                  <div className="pt-4 border-t border-[var(--border)]">
+                    <label className="text-sm text-[var(--muted-foreground)]">Your Response:</label>
+                    <p className="text-[var(--foreground)]">{selectedInvitation.photographerResponse}</p>
                   </div>
                 )}
               </div>

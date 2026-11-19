@@ -1,5 +1,6 @@
 'use client';
 
+import { theme } from "@/lib/admin-theme";
 import { useState, useEffect } from 'react';
 import { 
   Building2, 
@@ -124,7 +125,7 @@ export default function CorporateDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your account...</p>
@@ -135,7 +136,7 @@ export default function CorporateDashboardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
           <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Account Not Found</h2>
@@ -154,7 +155,7 @@ export default function CorporateDashboardPage() {
   if (!account) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-12">
         <div className="container mx-auto px-4">

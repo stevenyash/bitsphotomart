@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
-import { PhotographerStatus } from "@prisma/client";
+import { PhotographerStatus } from '@/lib/generated/prisma';
+import { hasPermission } from "@/lib/rbac";
 
 // GET - Get pending photographer applications
 export async function GET(request: Request) {
@@ -14,8 +15,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
+    // Permission check for viewing photographers
+    const hasViewAccess = await hasPermission('photographers.view');
+    if (!hasViewAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -69,8 +71,9 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN") {
+    // Permission check for approving/rejecting photographers
+    const hasApproveAccess = await hasPermission('photographers.approve');
+    if (!hasApproveAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

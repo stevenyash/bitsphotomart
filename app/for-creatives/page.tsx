@@ -16,7 +16,8 @@ import {
   Upload,
   Wallet,
   GraduationCap,
-  Star
+  Star,
+  ArrowLeft
 } from "lucide-react";
 
 export const metadata = {
@@ -111,6 +112,14 @@ const WHAT_WE_ACCEPT = [
 export default function ForCreativesPage() {
   return (
     <PageContainer>
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+      </div>
+
       {/* Hero Section */}
       <Section className="bg-gradient-to-b from-background to-muted/30 -mx-4 px-4 pt-16 pb-20">
         <div className="text-center max-w-4xl mx-auto">

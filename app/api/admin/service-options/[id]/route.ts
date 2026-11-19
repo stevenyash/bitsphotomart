@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { hasPermission } from '@/lib/rbac';
 
 // GET /api/admin/service-options/[id] - Get single service option
 export async function GET(
@@ -10,8 +11,14 @@ export async function GET(
   try {
     const session = await auth();
     
-    if (!session || (session.user as any)?.role !== 'ADMIN') {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('services.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - services.manage permission required' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -42,8 +49,14 @@ export async function PATCH(
   try {
     const session = await auth();
     
-    if (!session || (session.user as any)?.role !== 'ADMIN') {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('services.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - services.manage permission required' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -79,8 +92,14 @@ export async function DELETE(
   try {
     const session = await auth();
     
-    if (!session || (session.user as any)?.role !== 'ADMIN') {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check permission using RBAC
+    const hasAccess = await hasPermission('services.manage');
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden - services.manage permission required' }, { status: 403 });
     }
 
     const { id } = await params;

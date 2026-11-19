@@ -30,6 +30,7 @@ import {
   Video
 } from "lucide-react";
 import Link from "next/link";
+import { theme } from "@/lib/admin-theme";
 
 interface Video {
   id: string;
@@ -184,8 +185,8 @@ export default function AdminVideosPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-8">
-        <Video className="h-8 w-8 text-blue-600" />
-        <h1 className="text-3xl font-bold">Video Management</h1>
+        <Video className="h-8 w-8 text-primary" />
+        <h1 className="text-3xl font-bold text-white">Video Management</h1>
       </div>
 
       {/* Filters */}
@@ -201,10 +202,10 @@ export default function AdminVideosPage() {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full md:w-auto">
+            <span className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 w-full md:w-auto">
               <Filter className="h-4 w-4 mr-2" />
               {statusFilter === "all" ? "All Status" : statusFilter}
-            </Button>
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setStatusFilter("all")}>
@@ -224,7 +225,7 @@ export default function AdminVideosPage() {
       </div>
 
       {/* Videos Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className={`${theme.card} rounded-lg shadow overflow-hidden`}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -258,7 +259,7 @@ export default function AdminVideosPage() {
                   <TableCell>
                     <div className="max-w-xs">
                       <p className="font-medium truncate">{video.title}</p>
-                      <p className="text-sm text-gray-500 truncate">
+                      <p className={`text-sm ${theme.mutedText} truncate`}>
                         {video.description || "No description"}
                       </p>
                     </div>
