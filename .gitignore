@@ -51,3 +51,9 @@ generated/
 .vscode/
 
 .vercel
+
+# local secrets and logs
+.env.development
+cookies.txt
+logs/
+nul
